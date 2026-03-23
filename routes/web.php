@@ -1,0 +1,53 @@
+<?php
+
+use App\Http\Controllers\Auth\LoginController;
+use App\Http\Controllers\Auth\RegisterController;
+use App\Http\Controllers\ActivityController;
+use App\Http\Controllers\AdminController;
+use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\RankingController;
+use Illuminate\Support\Facades\Route;
+
+Route::get('/', function () {
+    return redirect('/login');
+});
+
+// Auth (guest)
+Route::middleware('guest')->group(function () {
+    Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login');
+    Route::post('/login', [LoginController::class, 'login']);
+    Route::get('/register', [RegisterController::class, 'showRegistrationForm'])->name('register');
+    Route::post('/register', [RegisterController::class, 'register']);
+});
+
+Route::post('/logout', [LoginController::class, 'logout'])->name('logout')->middleware('auth');
+
+// Autenticado
+Route::middleware('auth')->group(function () {
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+
+    // Missões
+    Route::get('/activities', [ActivityController::class, 'index'])->name('activities.index');
+    Route::get('/activities/{activity}', [ActivityController::class, 'show'])->name('activities.show');
+
+    // Presença via QR Code (qualquer autenticado)
+    Route::get('/activities/{activity}/presenca/{token}', [ActivityController::class, 'confirmPresence'])->name('activities.confirmPresence');
+
+    // Ranking
+    Route::get('/ranking', [RankingController::class, 'index'])->name('ranking');
+
+    // Atividades (criar/editar - só coordenador/admin)
+    Route::middleware('role:coordenador,administrador')->group(function () {
+        Route::get('/activities/create/new', [ActivityController::class, 'create'])->name('activities.create');
+        Route::post('/activities', [ActivityController::class, 'store'])->name('activities.store');
+        Route::get('/activities/{activity}/edit', [ActivityController::class, 'edit'])->name('activities.edit');
+        Route::put('/activities/{activity}', [ActivityController::class, 'update'])->name('activities.update');
+        Route::get('/activities/{activity}/qrcode', [ActivityController::class, 'qrcode'])->name('activities.qrcode');
+    });
+
+    // Admin (só administrador)
+    Route::middleware('role:administrador')->group(function () {
+        Route::get('/admin/users', [AdminController::class, 'users'])->name('admin.users');
+        Route::patch('/admin/users/{user}/role', [AdminController::class, 'updateRole'])->name('admin.users.updateRole');
+    });
+});
