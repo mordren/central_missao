@@ -42,6 +42,7 @@
         Ranking
     </a>
 
+
     {{-- Menu coord/admin --}}
     @if (auth()->user()->canManageActivities())
         <p class="px-3 text-xs font-bold text-brand-gray uppercase tracking-widest mt-6 mb-3">Coordenação</p>
@@ -49,6 +50,11 @@
         <a href="{{ route('activities.create') }}" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition text-brand-gray hover:text-white hover:bg-brand-dark-input">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
             Criar Atividade
+        </a>
+
+        <a href="{{ route('leads.index') }}" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition {{ request()->routeIs('leads.index') ? 'bg-brand-yellow/10 text-brand-yellow font-semibold' : 'text-brand-gray hover:text-white hover:bg-brand-dark-input' }}">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 01-8 0M12 11v2m0 4h.01M6 21h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2z"/></svg>
+            Leads
         </a>
     @endif
 

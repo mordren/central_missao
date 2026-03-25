@@ -25,6 +25,11 @@ Route::post('/logout', [LoginController::class, 'logout'])->name('logout')->midd
 Route::middleware('auth')->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
+    // Leads (admin e coordenador)
+    Route::middleware('role:administrador,coordenador')->group(function () {
+        Route::get('/leads', [AdminController::class, 'leads'])->name('leads.index');
+    });
+
     // Missões
     Route::get('/activities', [ActivityController::class, 'index'])->name('activities.index');
     Route::get('/activities/{activity}', [ActivityController::class, 'show'])->name('activities.show');

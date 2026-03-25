@@ -7,9 +7,21 @@ use Illuminate\Http\Request;
 
 class AdminController extends Controller
 {
+    public function leads()
+    {
+        $leads = User::select('name', 'phone', 'city')->orderBy('name')->get();
+        return view('admin.leads', compact('leads'));
+    }
     public function users()
     {
-        $users = User::orderByRaw("FIELD(role, 'administrador', 'coordenador', 'participante')")
+        $users = User::orderByRaw("
+            CASE
+                WHEN role = 'administrador' THEN 1
+                WHEN role = 'coordenador' THEN 2
+                WHEN role = 'participante' THEN 3
+                ELSE 4
+            END
+        ")
             ->orderBy('name')
             ->paginate(50);
 
