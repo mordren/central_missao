@@ -16,24 +16,24 @@ class LoginController extends Controller
     public function login(Request $request)
     {
         $credentials = $request->validate([
-            'phone' => ['required', 'string'],
+            'email' => ['required', 'email'],
             'password' => ['required', 'string'],
         ], [
-            'phone.required' => 'O telefone é obrigatório.',
+            'email.required' => 'O e-mail é obrigatório.',
+            'email.email' => 'Informe um e-mail válido.',
             'password.required' => 'A senha é obrigatória.',
         ]);
 
         $remember = $request->boolean('remember');
 
-        if (Auth::attempt(['phone' => $credentials['phone'], 'password' => $credentials['password']], $remember)) {
+        if (Auth::attempt(['email' => $credentials['email'], 'password' => $credentials['password']], $remember)) {
             $request->session()->regenerate();
-
             return redirect()->intended('/dashboard');
         }
 
         return back()->withErrors([
-            'phone' => 'Telefone ou senha incorretos.',
-        ])->onlyInput('phone', 'remember');
+            'email' => 'E-mail ou senha incorretos.',
+        ])->onlyInput('email', 'remember');
     }
 
     public function logout(Request $request)
