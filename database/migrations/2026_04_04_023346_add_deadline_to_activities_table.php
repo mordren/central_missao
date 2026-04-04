@@ -11,9 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('activities', function (Blueprint $table) {
-            $table->dateTime('deadline')->nullable()->after('date_time');
-        });
+        if (! Schema::hasColumn('activities', 'deadline')) {
+            Schema::table('activities', function (Blueprint $table) {
+                $table->dateTime('deadline')->nullable()->after('date_time');
+            });
+        }
     }
 
     /**
@@ -21,8 +23,10 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('activities', function (Blueprint $table) {
-            $table->dropColumn('deadline');
-        });
+        if (Schema::hasColumn('activities', 'deadline')) {
+            Schema::table('activities', function (Blueprint $table) {
+                $table->dropColumn('deadline');
+            });
+        }
     }
 };

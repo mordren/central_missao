@@ -54,4 +54,8 @@ Route::middleware('auth')->group(function () {
         Route::get('/admin/users', [AdminController::class, 'users'])->name('admin.users');
         Route::patch('/admin/users/{user}/role', [AdminController::class, 'updateRole'])->name('admin.users.updateRole');
     });
+
+    // Completar cadastro (perfil expandido)
+    Route::get('/profile/complete', [\App\Http\Controllers\ExpandedProfileController::class, 'edit'])->name('profile.complete');
+    Route::post('/profile/complete', [\App\Http\Controllers\ExpandedProfileController::class, 'update'])->name('profile.complete.update');
 });

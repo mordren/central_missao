@@ -41,6 +41,14 @@
             </a>
         @endif
 
+        {{-- Botão completar cadastro (visível a todos) --}}
+        <div class="mt-4">
+            <a href="{{ route('profile.complete') }}" class="inline-flex items-center gap-3 bg-yellow-500 hover:bg-yellow-400 text-brand-dark font-bold py-4 px-8 rounded-lg transition uppercase tracking-wider text-base">
+                Completar cadastro
+            </a>
+            <div class="text-xs text-brand-gray mt-1">+15 pontos</div>
+        </div>
+
         <div class="grid lg:grid-cols-3 gap-6">
             {{-- Calendário --}}
             <div class="lg:col-span-2 bg-brand-dark-card border border-brand-dark-border rounded-2xl p-6">

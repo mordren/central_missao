@@ -21,6 +21,10 @@
         <span class="text-xs text-brand-gray">•</span>
         <span class="text-xs text-brand-gray capitalize">{{ auth()->user()->role }}</span>
     </div>
+    <div class="mt-3">
+        <a href="{{ route('profile.complete') }}" class="block bg-yellow-500 hover:bg-yellow-400 text-brand-dark font-bold text-center py-2 rounded-lg text-xs">Completar cadastro</a>
+        <p class="text-[11px] text-brand-gray mt-1">+15 pontos</p>
+    </div>
 </div>
 
 {{-- Navegação --}}
