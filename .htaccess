@@ -1,0 +1,38 @@
+# Regras para colocar dentro de public_html (Hostinger)
+
+# Bloquear acesso ao .env
+<Files ".env">
+    <IfModule mod_authz_core.c>
+        Require all denied
+    </IfModule>
+    <IfModule !mod_authz_core.c>
+        Deny from all
+    </IfModule>
+</Files>
+
+# Bloquear acesso direto a pastas sensíveis
+<IfModule mod_authz_core.c>
+    <FilesMatch "(\.env|composer\.(json|lock))$">
+        Require all denied
+    </FilesMatch>
+</IfModule>
+<IfModule !mod_authz_core.c>
+    <FilesMatch "(\.env|composer\.(json|lock))$">
+        Deny from all
+    </FilesMatch>
+</IfModule>
+
+# Evitar listagem de diretórios
+Options -Indexes
+
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+
+    # Se arquivo/dir existe, serve normalmente
+    RewriteCond %{REQUEST_FILENAME} -d [OR]
+    RewriteCond %{REQUEST_FILENAME} -f
+    RewriteRule ^ - [L]
+
+    # Caso contrário, reescrever para index.php
+    RewriteRule ^ index.php [L]
+</IfModule>
