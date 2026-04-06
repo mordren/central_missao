@@ -1,15 +1,8 @@
 {{-- Logo --}}
 <div class="px-6 py-5 border-b border-brand-dark-border">
     <div class="flex items-center gap-3">
-        <div class="w-10 h-10 bg-brand-yellow rounded-xl flex items-center justify-center flex-shrink-0">
-            <svg class="w-5 h-5 text-brand-dark" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
-            </svg>
-        </div>
-        <div>
-            <h1 class="text-sm font-extrabold text-white tracking-tight leading-tight">CENTRAL DA<br>MISSÃO</h1>
-        </div>
+        <img src="{{ asset('public/images/logo.png') }}" alt="Central da Missão" class="h-10 w-auto">
+        <h1 class="text-sm font-extrabold text-white tracking-tight leading-tight whitespace-nowrap">CENTRAL DA MISSÃO</h1>
     </div>
 </div>
 
@@ -21,10 +14,12 @@
         <span class="text-xs text-brand-gray">•</span>
         <span class="text-xs text-brand-gray capitalize">{{ auth()->user()->role }}</span>
     </div>
+    @if (!auth()->user()->profile_completed_at)
     <div class="mt-3">
         <a href="{{ route('profile.complete') }}" class="block bg-yellow-500 hover:bg-yellow-400 text-brand-dark font-bold text-center py-2 rounded-lg text-xs">Completar cadastro</a>
         <p class="text-[11px] text-brand-gray mt-1">+15 pontos</p>
     </div>
+    @endif
 </div>
 
 {{-- Navegação --}}

@@ -3,13 +3,13 @@
 @section('title', 'Editar Atividade - Central da Missão')
 
 @section('content')
-    <div class="max-w-2xl mx-auto px-4 py-8">
+    <div class="max-w-2xl mx-auto px-4 py-6 sm:py-8">
         <div class="flex items-center justify-between mb-6">
-            <h1 class="text-xl font-bold text-white tracking-tight uppercase">Editar Atividade</h1>
-            <a href="{{ route('activities.show', $activity) }}" class="text-brand-gray hover:text-brand-yellow transition text-sm">← Voltar</a>
+            <h1 class="text-lg sm:text-xl font-bold text-white tracking-tight uppercase">Editar Atividade</h1>
+            <a href="{{ route('activities.show', $activity) }}" class="text-brand-gray hover:text-brand-yellow transition text-sm">&larr; Voltar</a>
         </div>
 
-        <div class="bg-brand-dark-card border border-brand-dark-border rounded-2xl p-8">
+        <div class="bg-brand-dark-card border border-brand-dark-border rounded-2xl p-4 sm:p-8">
             @if ($errors->any())
                 <div class="mb-6 bg-red-900/30 border border-red-800 text-red-400 px-4 py-3 rounded-lg text-sm">
                     @foreach ($errors->all() as $error)

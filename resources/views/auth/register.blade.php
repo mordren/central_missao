@@ -3,21 +3,17 @@
 @section('title', 'Cadastro - Central da Missão')
 
 @section('content')
-<div class="flex-1 flex items-center justify-center px-4 py-12">
+<div class="flex-1 flex items-center justify-center px-4 py-8 sm:py-12">
     <div class="w-full max-w-md">
         {{-- Logo / Header --}}
         <div class="text-center mb-10">
-            <div class="inline-flex items-center justify-center w-20 h-20 bg-brand-yellow rounded-2xl mb-5 shadow-lg shadow-brand-yellow/20">
-                <svg class="w-10 h-10 text-brand-dark" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"/>
-                </svg>
-            </div>
+            <img src="{{ asset('public/images/logo.png') }}" alt="Central da Missão" class="h-24 w-auto mx-auto mb-5">
             <h1 class="text-3xl font-extrabold text-white tracking-tight">CRIAR CONTA</h1>
             <p class="text-brand-gray mt-2 text-sm">Preencha seus dados para se cadastrar</p>
         </div>
 
         {{-- Card de Cadastro --}}
-        <div class="bg-brand-dark-card border border-brand-dark-border rounded-2xl p-8">
+        <div class="bg-brand-dark-card border border-brand-dark-border rounded-2xl p-6 sm:p-8">
             {{-- Mensagem de erro geral --}}
             @if ($errors->any())
                 <div class="mb-6 bg-red-900/30 border border-red-800 text-red-400 px-4 py-3 rounded-lg text-sm">
@@ -103,7 +99,7 @@
                 </div>
 
                 {{-- Cidade e Bairro lado a lado --}}
-                <div class="grid grid-cols-2 gap-4 mb-5">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-5">
                     <div>
                         <label for="city" class="block text-sm font-semibold text-brand-gray mb-2 uppercase tracking-wider">Cidade</label>
                         <input

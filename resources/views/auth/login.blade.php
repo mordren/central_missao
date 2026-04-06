@@ -3,22 +3,16 @@
 @section('title', 'Login - Central da Missão')
 
 @section('content')
-<div class="flex-1 flex items-center justify-center px-4 py-12">
+<div class="flex-1 flex items-center justify-center px-4 py-8 sm:py-12">
     <div class="w-full max-w-md">
         {{-- Logo / Header --}}
         <div class="text-center mb-10">
-            <div class="inline-flex items-center justify-center w-20 h-20 bg-brand-yellow rounded-2xl mb-5 shadow-lg shadow-brand-yellow/20">
-                <svg class="w-10 h-10 text-brand-dark" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
-                </svg>
-            </div>
-            <h1 class="text-3xl font-extrabold text-white tracking-tight">CENTRAL DA MISSÃO</h1>
+            <img src="{{ asset('public/images/logo.png') }}" alt="Central da Missão" class="h-24 w-auto mx-auto mb-5">
             <p class="text-brand-gray mt-2 text-sm">Entre com seu e-mail e senha</p>
         </div>
 
         {{-- Card de Login --}}
-        <div class="bg-brand-dark-card border border-brand-dark-border rounded-2xl p-8">
+        <div class="bg-brand-dark-card border border-brand-dark-border rounded-2xl p-6 sm:p-8">
             {{-- Mensagem de erro geral --}}
             @if ($errors->any())
                 <div class="mb-6 bg-red-900/30 border border-red-800 text-red-400 px-4 py-3 rounded-lg text-sm">

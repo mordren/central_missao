@@ -9,7 +9,18 @@ class AdminController extends Controller
 {
     public function leads()
     {
-        $leads = User::select('name', 'phone', 'city')->orderBy('name')->get();
+        $leads = User::select([
+            'name',
+            'phone',
+            'email',
+            'city',
+            'neighborhood',
+            'referred_by',
+            'created_at',
+        ])
+            ->orderBy('name')
+            ->get();
+
         return view('admin.leads', compact('leads'));
     }
     public function users()

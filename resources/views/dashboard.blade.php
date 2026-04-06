@@ -3,7 +3,7 @@
 @section('title', 'Dashboard - Central da Missão')
 
 @section('content')
-    <div class="max-w-6xl mx-auto px-4 py-6 space-y-6">
+    <div class="max-w-6xl mx-auto px-4 py-5 sm:py-6 space-y-6">
         {{-- Mensagem de sucesso --}}
         @if (session('success'))
             <div class="bg-green-900/30 border border-green-800 text-green-400 px-4 py-3 rounded-lg text-sm">
@@ -12,7 +12,7 @@
         @endif
 
         {{-- Cards de resumo --}}
-        <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
             <div class="bg-brand-dark-card border border-brand-dark-border rounded-xl p-4 text-center">
                 <p class="text-2xl font-extrabold text-brand-yellow">{{ $user->points }}</p>
                 <p class="text-xs text-brand-gray uppercase tracking-wider mt-1">Pontos</p>
@@ -33,7 +33,7 @@
 
         {{-- Botão criar atividade (só coord/admin) --}}
         @if ($user->canManageActivities())
-            <a href="{{ route('activities.create') }}" class="inline-flex items-center gap-2 bg-brand-yellow hover:bg-brand-yellow-hover text-brand-dark font-bold py-3 px-6 rounded-lg transition uppercase tracking-wider text-sm">
+            <a href="{{ route('activities.create') }}" class="inline-flex items-center justify-center gap-2 w-full sm:w-auto bg-brand-yellow hover:bg-brand-yellow-hover text-brand-dark font-bold py-3 px-6 rounded-lg transition uppercase tracking-wider text-sm">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
                 </svg>
@@ -41,25 +41,27 @@
             </a>
         @endif
 
-        {{-- Botão completar cadastro (visível a todos) --}}
+        {{-- Botão completar cadastro (oculto após completar) --}}
+        @if (!auth()->user()->profile_completed_at)
         <div class="mt-4">
-            <a href="{{ route('profile.complete') }}" class="inline-flex items-center gap-3 bg-yellow-500 hover:bg-yellow-400 text-brand-dark font-bold py-4 px-8 rounded-lg transition uppercase tracking-wider text-base">
+            <a href="{{ route('profile.complete') }}" class="inline-flex items-center justify-center gap-3 w-full sm:w-auto bg-yellow-500 hover:bg-yellow-400 text-brand-dark font-bold py-4 px-6 sm:px-8 rounded-lg transition uppercase tracking-wider text-base">
                 Completar cadastro
             </a>
             <div class="text-xs text-brand-gray mt-1">+15 pontos</div>
         </div>
+        @endif
 
-        <div class="grid lg:grid-cols-3 gap-6">
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
             {{-- Calendário --}}
-            <div class="lg:col-span-2 bg-brand-dark-card border border-brand-dark-border rounded-2xl p-6">
+            <div class="lg:col-span-2 bg-brand-dark-card border border-brand-dark-border rounded-2xl p-4 sm:p-6">
                 <div class="flex items-center justify-between mb-6">
-                    <a href="?month={{ $currentDate->copy()->subMonth()->month }}&year={{ $currentDate->copy()->subMonth()->year }}" class="text-brand-gray hover:text-brand-yellow transition p-2">
+                    <a href="?month={{ $currentDate->copy()->subMonth()->month }}&year={{ $currentDate->copy()->subMonth()->year }}" class="text-brand-gray hover:text-brand-yellow transition p-1.5 sm:p-2">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
                     </a>
-                    <h2 class="text-lg font-bold text-white uppercase tracking-wider">
+                    <h2 class="text-base sm:text-lg font-bold text-white uppercase tracking-wider text-center">
                         {{ ucfirst($currentDate->translatedFormat('F Y')) }}
                     </h2>
-                    <a href="?month={{ $currentDate->copy()->addMonth()->month }}&year={{ $currentDate->copy()->addMonth()->year }}" class="text-brand-gray hover:text-brand-yellow transition p-2">
+                    <a href="?month={{ $currentDate->copy()->addMonth()->month }}&year={{ $currentDate->copy()->addMonth()->year }}" class="text-brand-gray hover:text-brand-yellow transition p-1.5 sm:p-2">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
                     </a>
                 </div>
@@ -150,7 +152,7 @@
 
             {{-- Sidebar: Missões abertas --}}
             <div class="space-y-6">
-                <div class="bg-brand-dark-card border border-brand-dark-border rounded-2xl p-6">
+                <div class="bg-brand-dark-card border border-brand-dark-border rounded-2xl p-4 sm:p-6">
                     <h3 class="text-sm font-bold text-brand-yellow uppercase tracking-wider mb-4">Missões Abertas</h3>
                     @forelse ($openActivities as $activity)
                         <a href="{{ route('activities.show', $activity) }}" class="block mb-3 last:mb-0 p-3 bg-brand-dark-input rounded-lg border border-brand-dark-border hover:border-brand-yellow/50 transition">
@@ -171,7 +173,7 @@
                 </div>
 
                 {{-- Histórico recente --}}
-                <div class="bg-brand-dark-card border border-brand-dark-border rounded-2xl p-6">
+                <div class="bg-brand-dark-card border border-brand-dark-border rounded-2xl p-4 sm:p-6">
                     <h3 class="text-sm font-bold text-brand-yellow uppercase tracking-wider mb-4">Histórico Recente</h3>
                     @forelse ($history as $item)
                         <div class="flex items-center gap-3 mb-3 last:mb-0">

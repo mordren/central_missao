@@ -1,8 +1,9 @@
 @extends('layouts.app')
 
 @section('content')
-<div class="max-w-lg mx-auto bg-white rounded shadow p-6 mt-8">
-    <h2 class="text-2xl font-bold mb-4 text-center">Formulário Expandido</h2>
+<div class="max-w-lg mx-auto px-4 py-6">
+    <div class="bg-white rounded shadow p-4 sm:p-6">
+    <h2 class="text-xl sm:text-2xl font-bold mb-4 text-center">Formulário Expandido</h2>
     <form method="POST" action="{{ route('activities.expandedForm.submit', $activity) }}">
         @csrf
         <div class="mb-4">
@@ -47,7 +48,8 @@
             <label class="block font-semibold mb-1">Interesses (opcional)</label>
             <input type="text" name="interesses" class="form-input w-full" value="{{ old('interesses') }}">
         </div>
-        <button type="submit" class="bg-yellow-400 hover:bg-yellow-500 text-black font-bold py-2 px-4 rounded w-full">Enviar e ganhar 25 pontos</button>
+        <button type="submit" class="bg-yellow-400 hover:bg-yellow-500 text-black font-bold py-2.5 px-4 rounded w-full">Enviar e ganhar 25 pontos</button>
     </form>
+    </div>
 </div>
 @endsection

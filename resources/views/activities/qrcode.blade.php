@@ -3,13 +3,13 @@
 @section('title', 'QR Code - ' . $activity->title)
 
 @section('content')
-    <div class="max-w-2xl mx-auto px-4 py-8">
-        <div class="flex items-center justify-between mb-6">
-            <h1 class="text-xl font-bold text-white tracking-tight uppercase">QR Code da Atividade</h1>
+    <div class="max-w-2xl mx-auto px-4 py-6 sm:py-8">
+        <div class="flex items-center justify-between gap-3 flex-wrap mb-6">
+            <h1 class="text-lg sm:text-xl font-bold text-white tracking-tight uppercase">QR Code da Atividade</h1>
             <a href="{{ route('activities.show', $activity) }}" class="text-brand-gray hover:text-brand-yellow transition text-sm">← Voltar</a>
         </div>
 
-        <div class="bg-brand-dark-card border border-brand-dark-border rounded-2xl p-8 text-center">
+        <div class="bg-brand-dark-card border border-brand-dark-border rounded-2xl p-5 sm:p-8 text-center">
             {{-- Título --}}
             <span class="text-xs font-bold text-brand-yellow bg-brand-yellow/10 px-3 py-1 rounded-full uppercase tracking-wider">{{ $activity->typeLabel() }}</span>
             <h2 class="text-xl font-extrabold text-white mt-3">{{ $activity->title }}</h2>
@@ -17,7 +17,7 @@
 
             {{-- QR Code --}}
             <div class="mt-8 mb-6 flex justify-center">
-                <div id="qrcode" class="bg-white p-4 rounded-2xl inline-block"></div>
+                <div id="qrcode" class="bg-white p-3 sm:p-4 rounded-2xl inline-block"></div>
             </div>
 
             <p class="text-brand-gray text-sm mb-2">Peça para os participantes lerem este QR Code</p>
@@ -57,10 +57,13 @@
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             const url = @json(route('activities.confirmPresence', ['activity' => $activity->id, 'token' => $activity->qr_code]));
+            const safePadding = 24;
+            const available = Math.max(180, window.innerWidth - safePadding * 2);
+            const size = Math.min(280, available);
             new QRCode(document.getElementById('qrcode'), {
                 text: url,
-                width: 280,
-                height: 280,
+                width: size,
+                height: size,
                 colorDark: '#000000',
                 colorLight: '#ffffff',
                 correctLevel: QRCode.CorrectLevel.H

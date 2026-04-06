@@ -21,14 +21,11 @@ class Activity extends Model
         'created_by',
     ];
 
-    protected function casts(): array
-    {
-        return [
-            'date_time' => 'datetime',
-            'deadline' => 'datetime',
-            'points' => 'integer',
-        ];
-    }
+    protected $casts = [
+        'date_time' => 'datetime',
+        'deadline' => 'datetime',
+        'points' => 'integer',
+    ];
 
     public function creator()
     {
@@ -47,7 +44,7 @@ class Activity extends Model
 
     public function isExpired(): bool
     {
-        return $this->deadline->isPast();
+        return $this->deadline?->isPast() ?? false;
     }
 
     public function typeLabel(): string

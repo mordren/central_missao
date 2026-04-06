@@ -3,11 +3,11 @@
 @section('title', 'Ranking - Central da Missão')
 
 @section('content')
-    <div class="max-w-3xl mx-auto px-4 py-6 space-y-6">
-        <h1 class="text-xl font-bold text-white tracking-tight uppercase">Ranking</h1>
+    <div class="max-w-3xl mx-auto px-4 py-5 sm:py-6 space-y-6">
+        <h1 class="text-lg sm:text-xl font-bold text-white tracking-tight uppercase">Ranking</h1>
 
-        <div class="bg-brand-dark-card border border-brand-dark-border rounded-2xl overflow-hidden">
-            <table class="w-full">
+        <div class="bg-brand-dark-card border border-brand-dark-border rounded-2xl overflow-x-auto">
+            <table class="w-full table-fixed min-w-0 sm:min-w-[640px]">
                 <thead>
                     <tr class="border-b border-brand-dark-border">
                         <th class="px-5 py-3 text-left text-xs font-bold text-brand-gray uppercase tracking-wider">#</th>
@@ -30,13 +30,13 @@
                                 @endif
                             </td>
                             <td class="px-5 py-3">
-                                <span class="text-sm font-medium text-white {{ $u->id === auth()->id() ? 'text-brand-yellow' : '' }}">{{ $u->name }}</span>
+                                <span class="text-sm font-medium text-white break-words {{ $u->id === auth()->id() ? 'text-brand-yellow' : '' }}">{{ $u->name }}</span>
                             </td>
                             <td class="px-5 py-3 hidden sm:table-cell">
-                                <span class="text-sm text-brand-gray">{{ $u->city ?? '—' }}</span>
+                                <span class="text-sm text-brand-gray break-words">{{ $u->city ?? '—' }}</span>
                             </td>
                             <td class="px-5 py-3 text-right">
-                                <span class="text-sm font-bold text-brand-yellow">{{ number_format($u->points) }}</span>
+                                <span class="text-sm font-bold text-brand-yellow break-words">{{ number_format($u->points) }}</span>
                             </td>
                         </tr>
                     @empty
