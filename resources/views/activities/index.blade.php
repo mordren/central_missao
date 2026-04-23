@@ -45,6 +45,7 @@
                                 @if ($activity->location)
                                     <span class="break-words">• {{ $activity->location }}</span>
                                 @endif
+                                <span>• {{ $activity->rsvp_participants_count }} inscrito{{ $activity->rsvp_participants_count === 1 ? '' : 's' }}</span>
                             </div>
                         </div>
                         <span class="text-sm font-bold text-brand-yellow bg-brand-yellow/10 px-3 py-1.5 rounded-lg flex-shrink-0">+{{ $activity->points }}pts</span>

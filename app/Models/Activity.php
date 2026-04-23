@@ -17,6 +17,7 @@ class Activity extends Model
         'deadline',
         'location',
         'points',
+        'banner',
         'qr_code',
         'created_by',
     ];
@@ -34,12 +35,19 @@ class Activity extends Model
 
     public function participants()
     {
-        return $this->belongsToMany(User::class)->withPivot('status', 'confirmed_at')->withTimestamps();
+        return $this->belongsToMany(User::class)
+            ->withPivot('status', 'confirmed_at', 'rsvp_confirmed', 'did_participate', 'points_awarded', 'penalty_applied')
+            ->withTimestamps();
     }
 
     public function confirmedParticipants()
     {
         return $this->participants()->wherePivot('status', 'confirmado');
+    }
+
+    public function rsvpParticipants()
+    {
+        return $this->participants()->wherePivot('rsvp_confirmed', true);
     }
 
     public function isExpired(): bool

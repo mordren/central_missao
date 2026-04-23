@@ -4,8 +4,20 @@
 
 @section('content')
     <div class="max-w-3xl mx-auto px-4 py-5 sm:py-6 space-y-6">
-        <h1 class="text-lg sm:text-xl font-bold text-white tracking-tight uppercase">Ranking</h1>
-
+        <div class="flex items-center justify-between flex-wrap gap-3">
+            <h1 class="text-lg sm:text-xl font-bold text-white tracking-tight uppercase">Ranking</h1>
+            @if (auth()->user()->isAdmin())
+                <form method="POST" action="{{ route('ranking.reset') }}" class="inline">
+                    @csrf
+                    <button type="submit" onclick="return confirm('Zerar pontos de todos os usuários? Isso n\u00e3o pode ser desfeito.');" class="bg-red-800 hover:bg-red-700 text-white text-xs font-bold px-3 py-2 rounded-lg transition">
+                        Zerar Ranking
+                    </button>
+                </form>
+            @endif
+        </div>
+        @if(session('success'))
+            <div class=\"bg-green-900/30 border border-green-800 text-green-400 px-4 py-3 rounded-lg text-sm\">{{ session('success') }}</div>
+        @endif
         <div class="bg-brand-dark-card border border-brand-dark-border rounded-2xl overflow-x-auto">
             <table class="w-full table-fixed min-w-0 sm:min-w-[640px]">
                 <thead>

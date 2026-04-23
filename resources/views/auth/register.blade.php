@@ -67,6 +67,9 @@
                             value="{{ old('phone') }}"
                             placeholder="(11) 99999-9999"
                             required
+                            pattern="^\(?([1-9][0-9])\)?\s?9[0-9]{4}-?[0-9]{4}$"
+                            title="Use DDD + 9 dígitos. Ex: (11) 99999-9999"
+                            inputmode="tel"
                             class="block w-full pl-10 pr-4 py-3 bg-brand-dark-input border border-brand-dark-border rounded-lg text-white placeholder-brand-gray/60 focus:outline-none focus:ring-2 focus:ring-brand-yellow focus:border-brand-yellow transition @error('phone') border-red-500 @enderror"
                         >
                     </div>
@@ -167,8 +170,14 @@
                             name="password"
                             placeholder="Mínimo 8 caracteres"
                             required
-                            class="block w-full pl-10 pr-4 py-3 bg-brand-dark-input border border-brand-dark-border rounded-lg text-white placeholder-brand-gray/60 focus:outline-none focus:ring-2 focus:ring-brand-yellow focus:border-brand-yellow transition @error('password') border-red-500 @enderror"
+                            class="block w-full pl-10 pr-12 py-3 bg-brand-dark-input border border-brand-dark-border rounded-lg text-white placeholder-brand-gray/60 focus:outline-none focus:ring-2 focus:ring-brand-yellow focus:border-brand-yellow transition @error('password') border-red-500 @enderror"
                         >
+                        <button type="button" onclick="togglePasswordVisibility('password')" class="absolute inset-y-0 right-0 pr-3 flex items-center text-brand-gray hover:text-brand-yellow transition">
+                            <svg id="password-eye" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                            </svg>
+                        </button>
                     </div>
                     @error('password')
                         <p class="mt-1 text-sm text-red-400">{{ $message }}</p>
@@ -216,4 +225,89 @@
         </div>
     </div>
 </div>
-@endsection
+        <script>
+            // Prevent typing numbers into the Name field and letters into the Phone field; sanitize pasted content
+            document.addEventListener('DOMContentLoaded', function() {
+                const nameInput = document.getElementById('name');
+                const phoneInput = document.getElementById('phone');
+
+                if (nameInput) {
+                    nameInput.addEventListener('keydown', function(e) {
+                        if (e.ctrlKey || e.metaKey || e.altKey) return;
+                        const key = e.key;
+                        if (key && key.length === 1 && /[0-9]/.test(key)) {
+                            e.preventDefault();
+                        }
+                    });
+
+                    nameInput.addEventListener('input', function() {
+                        const pos = this.selectionStart;
+                        const cleaned = this.value.replace(/[0-9]/g, '');
+                        if (cleaned !== this.value) {
+                            this.value = cleaned;
+                            try { this.setSelectionRange(Math.max(pos-1,0), Math.max(pos-1,0)); } catch(e) {}
+                        }
+                    });
+
+                    nameInput.addEventListener('paste', function(e) {
+                        e.preventDefault();
+                        const paste = (e.clipboardData || window.clipboardData).getData('text');
+                        const sanitized = paste.replace(/[0-9]/g, '');
+                        const start = this.selectionStart;
+                        const end = this.selectionEnd;
+                        this.value = this.value.slice(0, start) + sanitized + this.value.slice(end);
+                        const newPos = start + sanitized.length;
+                        try { this.setSelectionRange(newPos, newPos); } catch(e) {}
+                    });
+                }
+
+                if (phoneInput) {
+                    phoneInput.addEventListener('keydown', function(e) {
+                        if (e.ctrlKey || e.metaKey || e.altKey) return;
+                        const key = e.key;
+                        // Allow control keys, digits and some formatting characters; block letters
+                        if (key && key.length === 1 && /[A-Za-zÀ-ÿ]/.test(key)) {
+                            e.preventDefault();
+                        }
+                    });
+
+                    phoneInput.addEventListener('input', function() {
+                        const pos = this.selectionStart;
+                        // keep digits, parentheses, plus, hyphen and spaces only
+                        const cleaned = this.value.replace(/[^0-9()\-+\s]/g, '');
+                        if (cleaned !== this.value) {
+                            this.value = cleaned;
+                            try { this.setSelectionRange(Math.max(pos-1,0), Math.max(pos-1,0)); } catch(e) {}
+                        }
+                    });
+
+                    phoneInput.addEventListener('paste', function(e) {
+                        e.preventDefault();
+                        const paste = (e.clipboardData || window.clipboardData).getData('text');
+                        const sanitized = paste.replace(/[^0-9()\-+\s]/g, '');
+                        const start = this.selectionStart;
+                        const end = this.selectionEnd;
+                        this.value = this.value.slice(0, start) + sanitized + this.value.slice(end);
+                        const newPos = start + sanitized.length;
+                        try { this.setSelectionRange(newPos, newPos); } catch(e) {}
+                    });
+                }
+            });
+        </script>
+
+        <script>
+            function togglePasswordVisibility(fieldId) {
+                const input = document.getElementById(fieldId);
+                const icon = document.getElementById(fieldId + '-eye');
+                
+                if (input.type === 'password') {
+                    input.type = 'text';
+                    icon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"/>';
+                } else {
+                    input.type = 'password';
+                    icon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>';
+                }
+            }
+        </script>
+
+    @endsection

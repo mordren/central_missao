@@ -48,9 +48,10 @@ class DashboardController extends Controller
             $activitiesByDayJs[$day] = $acts->map(fn ($a) => [
                 'id' => $a->id,
                 'title' => $a->title,
-                'time' => $a->date_time->format('H\hi'),
+                'time' => $a->date_time->format('H\\hi'),
                 'type' => $a->typeLabel(),
                 'points' => $a->points,
+                'banner' => $a->banner ? url($a->banner) : null,
             ])->values()->all();
         }
 

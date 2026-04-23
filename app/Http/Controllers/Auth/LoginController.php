@@ -28,6 +28,11 @@ class LoginController extends Controller
 
         if (Auth::attempt(['email' => $credentials['email'], 'password' => $credentials['password']], $remember)) {
             $request->session()->regenerate();
+            $user = Auth::user();
+            if ($user && $user->force_password_change) {
+                return redirect()->route('password.change');
+            }
+
             return redirect()->intended('/dashboard');
         }
 

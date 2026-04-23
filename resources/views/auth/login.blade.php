@@ -7,7 +7,7 @@
     <div class="w-full max-w-md">
         {{-- Logo / Header --}}
         <div class="text-center mb-10">
-            <img src="{{ asset('public/images/logo.png') }}" alt="Central da Missão" class="h-24 w-auto mx-auto mb-5">
+            <img src="{{ asset('public/images/logo.png') }}" alt="Central da Missão" class="h-28 w-auto mx-auto mb-5">
             <p class="text-brand-gray mt-2 text-sm">Entre com seu e-mail e senha</p>
         </div>
 
@@ -104,7 +104,7 @@
         {{-- Linha decorativa --}}
         <div class="mt-8 flex items-center justify-center">
             <div class="h-px w-12 bg-brand-dark-border"></div>
-            <span class="mx-3 text-xs text-brand-gray/50 uppercase tracking-widest">Missão</span>
+            <span class="mx-3 text-xs text-brand-gray/50 uppercase tracking-widest"></span>
             <div class="h-px w-12 bg-brand-dark-border"></div>
         </div>
     </div>

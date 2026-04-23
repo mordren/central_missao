@@ -5,7 +5,7 @@
 @section('content')
     <div class="max-w-2xl mx-auto px-4 py-6 sm:py-8">
         <div class="flex items-center justify-between gap-3 flex-wrap mb-6">
-            <h1 class="text-lg sm:text-xl font-bold text-white tracking-tight uppercase">QR Code da Atividade</h1>
+            <h1 class="text-lg sm:text-xl font-bold text-white tracking-tight uppercase">QR Code da Missão</h1>
             <a href="{{ route('activities.show', $activity) }}" class="text-brand-gray hover:text-brand-yellow transition text-sm">← Voltar</a>
         </div>
 
@@ -25,7 +25,7 @@
 
             @if ($activity->isExpired())
                 <div class="mt-6 bg-red-900/30 border border-red-800 text-red-400 px-4 py-3 rounded-lg text-sm">
-                    Esta atividade já foi encerrada. O QR Code não confirmará novas presenças.
+                    Esta Missão já foi encerrada. O QR Code não confirmará novas presenças.
                 </div>
             @endif
 

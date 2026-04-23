@@ -3,7 +3,7 @@
 @section('title', 'Dashboard - Central da Missão')
 
 @section('content')
-    <div class="max-w-6xl mx-auto px-4 py-5 sm:py-6 space-y-6">
+    <div class="max-w-6xl mx-auto px-5 sm:px-6 lg:px-4 py-5 sm:py-6 space-y-6">
         {{-- Mensagem de sucesso --}}
         @if (session('success'))
             <div class="bg-green-900/30 border border-green-800 text-green-400 px-4 py-3 rounded-lg text-sm">
@@ -31,13 +31,13 @@
             </div>
         </div>
 
-        {{-- Botão criar atividade (só coord/admin) --}}
+        {{-- Botão criar Missão (só coord/admin) --}}
         @if ($user->canManageActivities())
             <a href="{{ route('activities.create') }}" class="inline-flex items-center justify-center gap-2 w-full sm:w-auto bg-brand-yellow hover:bg-brand-yellow-hover text-brand-dark font-bold py-3 px-6 rounded-lg transition uppercase tracking-wider text-sm">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
                 </svg>
-                Criar Atividade
+                Criar Missão
             </a>
         @endif
 
@@ -137,10 +137,11 @@
                             const link = document.createElement('a');
                             link.href = '/activities/' + a.id;
                             link.className = 'flex items-center justify-between p-3 bg-brand-dark rounded-lg border border-brand-dark-border hover:border-brand-yellow/50 transition';
-                            link.innerHTML = '<div class="flex-1 min-w-0">' +
+                            const bannerHtml = a.banner ? '<div class="w-12 h-10 rounded-lg overflow-hidden flex-shrink-0 border border-brand-dark-border mr-3"><img src="' + a.banner + '" class="w-full h-full object-cover">' + '</div>' : '';
+                            link.innerHTML = '<div class="flex items-start justify-between gap-3"><div class="flex items-center gap-2 flex-shrink-0">' + bannerHtml + '</div><div class="flex-1 min-w-0">' +
                                 '<p class="text-sm font-semibold text-white truncate">' + a.title + '</p>' +
                                 '<p class="text-xs text-brand-gray mt-0.5">' + a.time + ' • ' + a.type + '</p>' +
-                                '</div>' +
+                                '</div></div>' +
                                 '<span class="text-xs font-bold text-brand-yellow bg-brand-yellow/10 px-2 py-1 rounded ml-2">+' + a.points + 'pts</span>';
                             list.appendChild(link);
                         });
@@ -156,12 +157,21 @@
                     <h3 class="text-sm font-bold text-brand-yellow uppercase tracking-wider mb-4">Missões Abertas</h3>
                     @forelse ($openActivities as $activity)
                         <a href="{{ route('activities.show', $activity) }}" class="block mb-3 last:mb-0 p-3 bg-brand-dark-input rounded-lg border border-brand-dark-border hover:border-brand-yellow/50 transition">
-                            <div class="flex items-start justify-between">
-                                <div class="flex-1">
+                            <div class="flex items-start justify-between gap-3">
+                                
+                                <div class="flex items-center gap-2 flex-shrink-0">
+                                    @if ($activity->banner)
+                                        <div class="w-10 h-10 rounded-lg overflow-hidden flex-shrink-0 border border-brand-dark-border">
+                                            <img src="{{ url($activity->banner) }}" alt="{{ $activity->title }}" class="w-full h-full object-cover">
+                                        </div>
+                                    @endif
+                                    
+                                </div>
+                                <div class="flex-1 min-w-0">
                                     <p class="text-sm font-semibold text-white">{{ $activity->title }}</p>
                                     <p class="text-xs text-brand-gray mt-1">{{ $activity->date_time->format('d/m • H\hi') }}</p>
                                 </div>
-                                <span class="text-xs font-bold text-brand-yellow bg-brand-yellow/10 px-2 py-1 rounded">+{{ $activity->points }}pts</span>
+                                <span class="text-xs font-bold text-brand-yellow bg-brand-yellow/10 px-2 py-1 rounded whitespace-nowrap">+{{ $activity->points }}pts</span>
                             </div>
                             <div class="mt-2">
                                 <span class="text-xs text-brand-gray bg-brand-dark-border px-2 py-0.5 rounded">{{ $activity->typeLabel() }}</span>
@@ -188,7 +198,7 @@
                             </div>
                         </div>
                     @empty
-                        <p class="text-sm text-brand-gray text-center py-4">Nenhuma atividade concluída ainda.</p>
+                        <p class="text-sm text-brand-gray text-center py-4">Nenhuma Missão concluída ainda.</p>
                     @endforelse
                 </div>
             </div>

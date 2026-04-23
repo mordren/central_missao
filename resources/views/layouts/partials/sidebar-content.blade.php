@@ -1,9 +1,9 @@
 {{-- Logo --}}
 <div class="px-6 py-5 border-b border-brand-dark-border">
-    <div class="flex items-center gap-3">
+    <a href="{{ route('dashboard') }}" class="flex items-center gap-3 hover:opacity-80 transition">
         <img src="{{ asset('public/images/logo.png') }}" alt="Central da Missão" class="h-10 w-auto">
         <h1 class="text-sm font-extrabold text-white tracking-tight leading-tight whitespace-nowrap">CENTRAL DA MISSÃO</h1>
-    </div>
+    </a>
 </div>
 
 {{-- Perfil resumido --}}
@@ -48,7 +48,12 @@
 
         <a href="{{ route('activities.create') }}" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition text-brand-gray hover:text-white hover:bg-brand-dark-input">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
-            Criar Atividade
+            Criar Missão
+        </a>
+
+        <a href="{{ route('admin.activity_submissions.index') }}" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition {{ request()->routeIs('admin.activity_submissions.*') ? 'bg-brand-yellow/10 text-brand-yellow font-semibold' : 'text-brand-gray hover:text-white hover:bg-brand-dark-input' }}">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+            Tarefas Manuais
         </a>
 
         <a href="{{ route('leads.index') }}" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition {{ request()->routeIs('leads.index') ? 'bg-brand-yellow/10 text-brand-yellow font-semibold' : 'text-brand-gray hover:text-white hover:bg-brand-dark-input' }}">
@@ -61,7 +66,7 @@
     @if (auth()->user()->isAdmin())
         <p class="px-3 text-xs font-bold text-brand-gray uppercase tracking-widest mt-6 mb-3">Administração</p>
 
-        <a href="{{ route('admin.users') }}" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition {{ request()->routeIs('admin.*') ? 'bg-brand-yellow/10 text-brand-yellow font-semibold' : 'text-brand-gray hover:text-white hover:bg-brand-dark-input' }}">
+        <a href="{{ route('admin.users') }}" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition {{ request()->routeIs('admin.users*') ? 'bg-brand-yellow/10 text-brand-yellow font-semibold' : 'text-brand-gray hover:text-white hover:bg-brand-dark-input' }}">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
             Gerenciar Usuários
         </a>
