@@ -173,7 +173,7 @@
                         <form method="POST" action="{{ route('activities.rsvp', $activity) }}">
                             @csrf
                             <button type="submit"
-                                    class="inline-flex items-center justify-center gap-2 w-full sm:w-auto bg-green-600 hover:bg-green-700 text-white font-bold py-2.5 px-5 rounded-lg transition text-sm uppercase tracking-wider">
+                                    class="inline-flex items-center justify-center gap-2 w-full sm:w-auto bg-brand-yellow hover:bg-brand-yellow-hover text-brand-dark font-bold py-2.5 px-5 rounded-lg transition text-sm uppercase tracking-wider">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
                                 Confirmar Presença
                             </button>
