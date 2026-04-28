@@ -7,6 +7,7 @@ use App\Http\Controllers\ActivityController;
 use App\Http\Controllers\ActivitySubmissionController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\PushTokenController;
 use App\Http\Controllers\RankingController;
 use Illuminate\Support\Facades\Route;
 
@@ -25,6 +26,11 @@ Route::post('/logout', [LoginController::class, 'logout'])->name('logout')->midd
 
 // Rota pública para compartilhamento no WhatsApp (sem autenticação)
 Route::get('/activities/{activity}/share', [ActivityController::class, 'sharePreview'])->name('activities.share');
+
+// Rota pública — Sobre o Site
+Route::get('/sobre', function () {
+    return view('sobre');
+})->name('sobre');
 
 // Autenticado
 Route::middleware('auth')->group(function () {
@@ -76,6 +82,9 @@ Route::middleware('auth')->group(function () {
         Route::patch('/admin/users/{user}/role', [AdminController::class, 'updateRole'])->name('admin.users.updateRole');
         Route::post('/ranking/reset', [RankingController::class, 'reset'])->name('ranking.reset');
     });
+
+    // Push notifications
+    Route::post('/salvar-token', [PushTokenController::class, 'store'])->name('push.token');
 
     // Completar cadastro (perfil expandido)
     Route::get('/profile/complete', [\App\Http\Controllers\ExpandedProfileController::class, 'edit'])->name('profile.complete');

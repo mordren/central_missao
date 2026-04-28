@@ -9,7 +9,8 @@ use Illuminate\Support\Facades\Hash;
 class CreateSuperUser extends Command
 {
     protected $signature = 'user:superadmin
-                            {--phone= : Telefone do usuário existente para promover}
+                            {--email= : Email do usuário existente para promover}
+                            {--phone= : Telefone opcional para criar novo superusuário}
                             {--name= : Nome para criar novo superusuário}
                             {--password= : Senha para novo superusuário}';
 
@@ -17,13 +18,13 @@ class CreateSuperUser extends Command
 
     public function handle(): int
     {
-        $phone = $this->option('phone');
+        $email = $this->option('email');
 
-        if ($phone) {
-            $user = User::where('phone', $phone)->first();
+        if ($email) {
+            $user = User::where('email', $email)->first();
 
             if (!$user) {
-                $this->error("Usuário com telefone {$phone} não encontrado.");
+                $this->error("Usuário com email {$email} não encontrado.");
                 return self::FAILURE;
             }
 
@@ -33,22 +34,24 @@ class CreateSuperUser extends Command
         }
 
         $name = $this->option('name') ?? $this->ask('Nome do superusuário');
-        $phone = $this->ask('Telefone (ex: (11) 99999-9999)');
+        $email = $this->option('email') ?? $this->ask('Email do superusuário');
+        $phone = $this->option('phone') ?? $this->ask('Telefone (opcional)');
         $password = $this->option('password') ?? $this->secret('Senha');
 
-        if (User::where('phone', $phone)->exists()) {
-            $this->error("Já existe um usuário com esse telefone.");
+        if (User::where('email', $email)->exists()) {
+            $this->error("Já existe um usuário com esse email.");
             return self::FAILURE;
         }
 
         $user = User::create([
             'name' => $name,
+            'email' => $email,
             'phone' => $phone,
             'password' => Hash::make($password),
             'role' => 'administrador',
             'city' => 'Admin',
             'neighborhood' => 'Admin',
-            'referral_code' => md5($phone . now()),
+            'referral_code' => md5($email . now()),
             'points' => 0,
         ]);
 

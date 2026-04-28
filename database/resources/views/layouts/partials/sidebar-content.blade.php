@@ -1,8 +1,8 @@
-{{-- Logo --}}
+﻿{{-- Logo --}}
 <div class="px-6 py-5 border-b border-brand-dark-border">
     <div class="flex items-center gap-3">
-        <img src="{{ asset('public/images/logo.png') }}" alt="Central da Missão" class="h-10 w-auto">
-        <h1 class="text-sm font-extrabold text-white tracking-tight leading-tight whitespace-nowrap">CENTRAL DA MISSÃO</h1>
+        <img src="{{ asset('public/images/logo.png') }}" alt="ONÇAS DO OESTE" class="h-10 w-auto">
+        <h1 class="text-sm font-extrabold text-white tracking-tight leading-tight whitespace-nowrap">ONÇAS DO OESTE</h1>
     </div>
 </div>
 
@@ -41,6 +41,10 @@
         Ranking
     </a>
 
+    <a href="{{ route('sobre') }}" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition {{ request()->routeIs('sobre') ? 'bg-brand-yellow/10 text-brand-yellow font-semibold' : 'text-brand-gray hover:text-white hover:bg-brand-dark-input' }}">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M12 2a10 10 0 100 20A10 10 0 0012 2z"/></svg>
+        Sobre o Site
+    </a>
 
     {{-- Menu coord/admin --}}
     @if (auth()->user()->canManageActivities())

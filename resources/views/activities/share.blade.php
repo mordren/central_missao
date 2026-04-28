@@ -1,12 +1,12 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ $activity->title }} - Central da Missão</title>
+    <title>{{ $activity->title }} - ONÇAS DO OESTE</title>
     
     {{-- Open Graph Meta Tags for WhatsApp preview --}}
-    <meta property="og:title" content="{{ $activity->title }} - Central da Missão">
+    <meta property="og:title" content="{{ $activity->title }} - ONÇAS DO OESTE">
     <meta property="og:description" content="{{ \Illuminate\Support\Str::limit($activity->description ?? 'Confira esta Missão!', 200) }}">
     @if ($activity->banner)
         <meta property="og:image" content="{{ url($activity->banner) }}">

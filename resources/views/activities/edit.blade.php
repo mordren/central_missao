@@ -1,6 +1,6 @@
-@extends('layouts.app')
+﻿@extends('layouts.app')
 
-@section('title', 'Editar Missão - Central da Missão')
+@section('title', 'Editar Missão - ONÇAS DO OESTE')
 
 @section('content')
     <div class="max-w-2xl mx-auto px-4 py-6 sm:py-8">
@@ -39,9 +39,39 @@
                                 <img src="{{ url($activity->banner) }}" alt="Banner" class="w-full h-48 object-cover rounded-lg border border-brand-dark-border">
                             </div>
                         @endif
-                        <label for="banner" class="block text-sm font-semibold text-brand-gray mb-2 uppercase tracking-wider">Alterar Banner <span class="text-brand-gray/50 normal-case">(opcional)</span></label>
-                        <input id="banner" name="banner" type="file" accept="image/*"
-                            class="block w-full text-sm text-brand-gray file:mr-3 file:py-2 file:px-3 file:rounded-lg file:border-0 file:bg-brand-yellow file:text-brand-dark file:font-semibold hover:file:bg-brand-yellow-hover">
+                        <label class="block text-sm font-semibold text-brand-gray mb-2 uppercase tracking-wider">Alterar Banner <span class="text-brand-gray/50 normal-case">(opcional)</span></label>
+
+                        {{-- Drop Zone --}}
+                        <div id="dz-banner"
+                             data-dz-target="banner"
+                             tabindex="0"
+                             role="button"
+                             aria-label="Área de upload de imagem"
+                             onclick="document.getElementById('banner').click()"
+                             ondragover="dzDragOver(event,this)"
+                             ondragleave="dzDragLeave(event,this)"
+                             ondrop="dzDrop(event,this,'banner')"
+                             class="border-2 border-dashed border-brand-dark-border rounded-xl p-6 text-center cursor-pointer transition hover:border-brand-yellow/60 hover:bg-brand-yellow/5 focus:outline-none focus:border-brand-yellow focus:bg-brand-yellow/5">
+
+                            {{-- Hint --}}
+                            <div id="dz-hint-banner">
+                                <svg class="w-8 h-8 text-brand-gray/50 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                                </svg>
+                                <p class="text-sm text-brand-gray">Arraste a imagem aqui ou <span class="text-brand-yellow font-semibold">clique para selecionar</span></p>
+                                <p class="text-xs text-brand-gray/50 mt-1">Clique aqui e cole com <kbd class="px-1 py-0.5 rounded bg-brand-dark-input border border-brand-dark-border text-brand-gray/70 font-mono text-[10px]">Ctrl+V</kbd></p>
+                            </div>
+
+                            {{-- Preview --}}
+                            <div id="dz-preview-banner" class="hidden">
+                                <img id="dz-img-banner" src="" alt="Preview" class="mx-auto max-h-40 rounded-lg border border-brand-dark-border object-contain">
+                                <p id="dz-name-banner" class="text-xs text-brand-gray mt-2 truncate"></p>
+                                <button type="button" onclick="dzClear(event,'banner')" class="mt-2 text-xs text-red-400 hover:text-red-300 transition">Remover</button>
+                            </div>
+                        </div>
+
+                        <input id="banner" name="banner" type="file" accept="image/*" class="hidden"
+                               onchange="dzFileSelected(this,'banner')">
                         @error('banner')
                             <p class="mt-1 text-sm text-red-400">{{ $message }}</p>
                         @enderror

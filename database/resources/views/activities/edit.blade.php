@@ -1,6 +1,6 @@
-@extends('layouts.app')
+﻿@extends('layouts.app')
 
-@section('title', 'Editar Atividade - Central da Missão')
+@section('title', 'Editar Atividade - ONÇAS DO OESTE')
 
 @section('content')
     <div class="max-w-2xl mx-auto px-4 py-6 sm:py-8">

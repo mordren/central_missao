@@ -1,13 +1,13 @@
-@extends('layouts.app')
+﻿@extends('layouts.app')
 
-@section('title', 'Alterar Senha - Central da Missão')
+@section('title', 'Alterar Senha - ONÇAS DO OESTE')
 
 @section('content')
 <div class="flex-1 flex items-center justify-center px-4 py-8 sm:py-12">
     <div class="w-full max-w-md">
         {{-- Logo / Header --}}
         <div class="text-center mb-10">
-            <img src="{{ asset('public/images/logo.png') }}" alt="Central da Missão" class="h-28 w-auto mx-auto mb-5">
+            <img src="{{ asset('public/images/logo.png') }}" alt="ONÇAS DO OESTE" class="h-28 w-auto mx-auto mb-5">
             <p class="text-brand-gray mt-2 text-sm">É necessário alterar sua senha antes de continuar</p>
         </div>
 

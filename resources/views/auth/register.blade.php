@@ -1,13 +1,13 @@
-@extends('layouts.app')
+﻿@extends('layouts.app')
 
-@section('title', 'Cadastro - Central da Missão')
+@section('title', 'Cadastro - ONÇAS DO OESTE')
 
 @section('content')
 <div class="flex-1 flex items-center justify-center px-4 py-8 sm:py-12">
     <div class="w-full max-w-md">
         {{-- Logo / Header --}}
         <div class="text-center mb-10">
-            <img src="{{ asset('public/images/logo.png') }}" alt="Central da Missão" class="h-24 w-auto mx-auto mb-5">
+            <img src="{{ asset('public/images/logo.png') }}" alt="ONÇAS DO OESTE" class="h-24 w-auto mx-auto mb-5">
             <h1 class="text-3xl font-extrabold text-white tracking-tight">CRIAR CONTA</h1>
             <p class="text-brand-gray mt-2 text-sm">Preencha seus dados para se cadastrar</p>
         </div>

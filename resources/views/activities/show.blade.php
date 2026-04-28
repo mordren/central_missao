@@ -1,9 +1,9 @@
-@extends('layouts.app')
+﻿@extends('layouts.app')
 
-@section('title', $activity->title . ' - Central da Missão')
+@section('title', $activity->title . ' - ONÇAS DO OESTE')
 
 @section('head')
-    <meta property="og:title" content="{{ $activity->title }} - Central da Missão">
+    <meta property="og:title" content="{{ $activity->title }} - ONÇAS DO OESTE">
     <meta property="og:description" content="{{ \Illuminate\Support\Str::limit($activity->description ?? '', 200) }}">
     @if ($activity->banner)
         <meta property="og:image" content="{{ url($activity->banner) }}">
@@ -258,9 +258,45 @@
                             @csrf
                             <div>
                                 <label for="submission_file" class="block text-xs font-semibold text-brand-gray uppercase tracking-wider mb-2">{{ $hasExisting ? 'Novo arquivo' : 'Arquivo da tarefa' }}</label>
+
+                                {{-- Drop Zone --}}
+                                <div id="dz-submission_file"
+                                     data-dz-target="submission_file"
+                                     tabindex="0"
+                                     role="button"
+                                     aria-label="Área de upload de arquivo"
+                                     onclick="document.getElementById('submission_file').click()"
+                                     ondragover="dzDragOver(event,this)"
+                                     ondragleave="dzDragLeave(event,this)"
+                                     ondrop="dzDrop(event,this,'submission_file')"
+                                     class="border-2 border-dashed border-brand-dark-border rounded-xl p-5 text-center cursor-pointer transition hover:border-brand-yellow/60 hover:bg-brand-yellow/5 focus:outline-none focus:border-brand-yellow focus:bg-brand-yellow/5">
+
+                                    {{-- Hint --}}
+                                    <div id="dz-hint-submission_file">
+                                        <svg class="w-7 h-7 text-brand-gray/50 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/>
+                                        </svg>
+                                        <p class="text-xs text-brand-gray">Arraste o arquivo aqui ou <span class="text-brand-yellow font-semibold">clique para selecionar</span></p>
+                                        <p class="text-xs text-brand-gray/50 mt-1">Imagens: cole com <kbd class="px-1 py-0.5 rounded bg-brand-dark-input border border-brand-dark-border text-brand-gray/70 font-mono text-[10px]">Ctrl+V</kbd></p>
+                                        <p class="text-xs text-brand-gray/40 mt-1">JPG, PNG, PDF, DOC, TXT</p>
+                                    </div>
+
+                                    {{-- Preview --}}
+                                    <div id="dz-preview-submission_file" class="hidden">
+                                        <img id="dz-img-submission_file" src="" alt="Preview" class="mx-auto max-h-32 rounded-lg border border-brand-dark-border object-contain">
+                                        <div id="dz-fileicon-submission_file" class="hidden mx-auto w-12 h-12 flex items-center justify-center rounded-lg bg-brand-dark-input border border-brand-dark-border">
+                                            <svg class="w-6 h-6 text-brand-gray" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                                            </svg>
+                                        </div>
+                                        <p id="dz-name-submission_file" class="text-xs text-brand-gray mt-2 truncate"></p>
+                                        <button type="button" onclick="dzClear(event,'submission_file')" class="mt-1 text-xs text-red-400 hover:text-red-300 transition">Remover</button>
+                                    </div>
+                                </div>
+
                                 <input id="submission_file" name="submission_file" type="file"
-                                       accept=".jpg,.jpeg,.pdf,.png,.doc,.docx,.txt" required
-                                       class="block w-full text-sm text-brand-gray file:mr-3 file:py-2 file:px-3 file:rounded-lg file:border-0 file:bg-brand-yellow file:text-brand-dark file:font-semibold hover:file:bg-brand-yellow-hover">
+                                       accept=".jpg,.jpeg,.pdf,.png,.doc,.docx,.txt" required class="hidden"
+                                       onchange="dzFileSelected(this,'submission_file')">
                                 @error('submission_file')
                                     <p class="mt-1 text-xs text-red-400">{{ $message }}</p>
                                 @enderror

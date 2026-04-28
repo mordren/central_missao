@@ -1,9 +1,9 @@
-@extends('layouts.app')
+﻿@extends('layouts.app')
 
-@section('title', $activity->title . ' - Central da Missão')
+@section('title', $activity->title . ' - ONÇAS DO OESTE')
 
 @section('head')
-    <meta property="og:title" content="{{ $activity->title }} - Central da Missão">
+    <meta property="og:title" content="{{ $activity->title }} - ONÇAS DO OESTE">
     <meta property="og:description" content="{{ \Illuminate\Support\Str::limit($activity->description ?? '', 200) }}">
     @if ($activity->banner)
         <meta property="og:image" content="{{ asset($activity->banner) }}">

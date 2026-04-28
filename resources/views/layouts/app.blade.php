@@ -1,10 +1,10 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>@yield('title', 'Central da Missão')</title>
+    <title>@yield('title', 'ONÇAS DO OESTE')</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -80,8 +80,8 @@
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
                     </button>
                     <a href="{{ route('dashboard') }}" class="flex items-center gap-2 min-w-0 hover:opacity-80 transition">
-                        <img src="{{ asset('public/images/logo.png') }}" alt="Central da Missão" class="h-8 w-auto flex-shrink-0">
-                        <span class="font-bold text-sm tracking-tight truncate">CENTRAL DA MISSÃO</span>
+                        <img src="{{ asset('public/images/logo.png') }}" alt="ONÇAS DO OESTE" class="h-8 w-auto flex-shrink-0">
+                        <span class="font-bold text-sm tracking-tight truncate">ONÇAS DO OESTE</span>
 
                     </a>
                     <div class="w-8"></div>
@@ -114,6 +114,235 @@
             @yield('content')
         </div>
     @endauth
+@auth
+{{-- Banner de permissão de notificações push --}}
+<div id="push-box"
+     class="fixed bottom-4 left-1/2 -translate-x-1/2 z-50 w-[calc(100%-2rem)] max-w-sm
+            bg-brand-dark-card border border-brand-dark-border rounded-xl shadow-xl
+            flex items-center gap-3 px-4 py-3 text-sm"
+     style="display:none!important">
+    <svg class="w-5 h-5 text-brand-yellow flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+        <path d="M10 2a6 6 0 00-6 6v2.586l-.707.707A1 1 0 004 13h12a1 1 0 00.707-1.707L16 10.586V8a6 6 0 00-6-6zm0 16a2 2 0 01-2-2h4a2 2 0 01-2 2z"/>
+    </svg>
+    <span class="flex-1 text-white">Receber avisos importantes?</span>
+    <button onclick="ativarPush()"
+            class="bg-brand-yellow text-brand-dark font-semibold text-xs px-3 py-1.5 rounded-lg hover:bg-brand-yellow-hover transition">
+        Ativar
+    </button>
+    <button onclick="fecharPushBox()"
+            class="text-brand-gray hover:text-white text-xs px-2 py-1.5 transition">
+        Agora não
+    </button>
+</div>
+@endauth
 
+<script type="module">
+import { initializeApp, getApps, getApp } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-app.js";
+import { getMessaging, getToken, onMessage } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-messaging.js";
+
+const firebaseConfig = {
+    apiKey:            "{{ env('FIREBASE_API_KEY') }}",
+    authDomain:        "{{ env('FIREBASE_AUTH_DOMAIN') }}",
+    projectId:         "{{ env('FIREBASE_PROJECT_ID') }}",
+    storageBucket:     "{{ env('FIREBASE_STORAGE_BUCKET') }}",
+    messagingSenderId: "{{ env('FIREBASE_MESSAGING_SENDER_ID') }}",
+    appId:             "{{ env('FIREBASE_APP_ID') }}",
+    measurementId:     "{{ env('FIREBASE_MEASUREMENT_ID') }}",
+};
+const vapidKey = "{{ env('FIREBASE_VAPID_KEY') }}";
+
+// Garante que initializeApp não é chamado duas vezes
+function getFirebase() {
+    const app = getApps().length ? getApp() : initializeApp(firebaseConfig);
+    const msg = getMessaging(app);
+
+    // FOREGROUND: quando a aba está aberta o Firebase não mostra notificação automaticamente.
+    // onMessage captura e exibe via Service Worker.
+    onMessage(msg, function (payload) {
+        const title = (payload.notification && payload.notification.title) || 'ONÇAS DO OESTE';
+        const body  = (payload.notification && payload.notification.body)  || '';
+        if (Notification.permission === 'granted') {
+            navigator.serviceWorker.getRegistration('/firebase-messaging-sw.js').then(function (reg) {
+                if (reg) reg.showNotification(title, {
+                    body,
+                    icon:  '/images/logo.png',
+                    badge: '/images/logo.png',
+                    data:  payload.data || {},
+                });
+            });
+        }
+    });
+
+    return msg;
+}
+
+async function registarSW() {
+    if (!('serviceWorker' in navigator)) return null;
+    try {
+        const reg = await navigator.serviceWorker.register('/firebase-messaging-sw.js', { scope: '/' });
+        await navigator.serviceWorker.ready;
+        return reg;
+    } catch (e) {
+        console.error('Erro ao registar service worker:', e);
+        return null;
+    }
+}
+
+async function salvarToken() {
+    try {
+        await registarSW();
+        const swReg = await navigator.serviceWorker.getRegistration('/firebase-messaging-sw.js');
+        const token = await getToken(getFirebase(), { vapidKey, serviceWorkerRegistration: swReg });
+        if (!token) { console.warn('FCM: token vazio'); return; }
+        await fetch('/salvar-token', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+            },
+            body: JSON.stringify({ token }),
+        });
+        localStorage.setItem('push_subscribed', '1');
+    } catch (e) {
+        console.error('Erro ao salvar token push:', e);
+    }
+}
+
+window.ativarPush = async function () {
+    fecharPushBox();
+    if (!('Notification' in window)) return;
+    const permission = await Notification.requestPermission();
+    if (permission !== 'granted') return;
+    await salvarToken();
+};
+
+window.fecharPushBox = function () {
+    const box = document.getElementById('push-box');
+    if (box) box.style.setProperty('display', 'none', 'important');
+    localStorage.setItem('push_dismissed_until', Date.now() + 1 * 24 * 60 * 60 * 1000);
+};
+
+function initBanner() {
+    const box = document.getElementById('push-box');
+    if (!box) return;
+
+    // Push só funciona em HTTPS (ou localhost)
+    if (location.protocol !== 'https:' && location.hostname !== 'localhost') return;
+
+    // Notificações bloqueadas pelo utilizador — nada a fazer
+    if (Notification.permission === 'denied') return;
+
+    // Se a permissão foi revogada, limpar flag
+    if (Notification.permission !== 'granted') {
+        localStorage.removeItem('push_subscribed');
+    }
+
+    const permission     = Notification.permission;
+    const subscribed     = localStorage.getItem('push_subscribed');
+    const dismissedUntil = parseInt(localStorage.getItem('push_dismissed_until') || '0', 10);
+
+    if (permission === 'granted' && !subscribed) {
+        // Permissão dada mas token perdido (ex: SW substituído)
+        salvarToken();
+    } else if (permission !== 'granted' && !subscribed && Date.now() > dismissedUntil) {
+        // Mostrar banner
+        box.style.removeProperty('display');
+    } else if (permission === 'granted' && subscribed) {
+        registarSW();
+    }
+}
+
+// CORREÇÃO CRÍTICA: type="module" com imports remotos resolve os imports de forma assíncrona.
+// O DOMContentLoaded pode já ter disparado quando o módulo termina de carregar.
+// Usamos readyState para garantir que initBanner() é sempre chamado.
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initBanner);
+} else {
+    initBanner();
+}
+</script>
+
+{{-- DropZone utility (drag-drop + Ctrl+V paste for file inputs) --}}
+<script>
+(function () {
+    function setFile(inputId, file) {
+        var input = document.getElementById(inputId);
+        if (!input) return;
+        var dt = new DataTransfer();
+        dt.items.add(file);
+        input.files = dt.files;
+        input.dispatchEvent(new Event('change'));
+    }
+
+    function showPreview(inputId, file) {
+        var hint    = document.getElementById('dz-hint-' + inputId);
+        var preview = document.getElementById('dz-preview-' + inputId);
+        var img     = document.getElementById('dz-img-' + inputId);
+        var icon    = document.getElementById('dz-fileicon-' + inputId);
+        var name    = document.getElementById('dz-name-' + inputId);
+        if (!preview) return;
+        if (hint) hint.classList.add('hidden');
+        preview.classList.remove('hidden');
+        if (name) name.textContent = file.name;
+        if (file.type.startsWith('image/')) {
+            if (img) { img.classList.remove('hidden'); var r = new FileReader(); r.onload = function(e){ img.src = e.target.result; }; r.readAsDataURL(file); }
+            if (icon) icon.classList.add('hidden');
+        } else {
+            if (img) img.classList.add('hidden');
+            if (icon) icon.classList.remove('hidden');
+        }
+    }
+
+    window.dzDragOver = function (e, el) {
+        e.preventDefault();
+        el.classList.add('!border-brand-yellow', 'bg-brand-yellow/5');
+    };
+
+    window.dzDragLeave = function (e, el) {
+        el.classList.remove('!border-brand-yellow', 'bg-brand-yellow/5');
+    };
+
+    window.dzDrop = function (e, el, inputId) {
+        e.preventDefault();
+        dzDragLeave(e, el);
+        var files = e.dataTransfer.files;
+        if (!files.length) return;
+        setFile(inputId, files[0]);
+        showPreview(inputId, files[0]);
+    };
+
+    window.dzFileSelected = function (input, inputId) {
+        if (!input.files.length) return;
+        showPreview(inputId, input.files[0]);
+    };
+
+    window.dzClear = function (e, inputId) {
+        e.stopPropagation();
+        var input   = document.getElementById(inputId);
+        var hint    = document.getElementById('dz-hint-' + inputId);
+        var preview = document.getElementById('dz-preview-' + inputId);
+        var img     = document.getElementById('dz-img-' + inputId);
+        if (input)   input.value = '';
+        if (hint)    hint.classList.remove('hidden');
+        if (preview) preview.classList.add('hidden');
+        if (img)     img.src = '';
+    };
+
+    // Ctrl+V paste — only when a drop zone div is focused
+    document.addEventListener('paste', function (e) {
+        var active = document.activeElement;
+        if (!active || !active.dataset.dzTarget) return;
+        var inputId = active.dataset.dzTarget;
+        var items = e.clipboardData && e.clipboardData.items;
+        if (!items) return;
+        for (var i = 0; i < items.length; i++) {
+            if (items[i].type.startsWith('image/')) {
+                var file = items[i].getAsFile();
+                if (file) { setFile(inputId, file); showPreview(inputId, file); break; }
+            }
+        }
+    });
+}());
+</script>
 </body>
 </html>
