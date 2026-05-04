@@ -50,8 +50,8 @@
                 {{-- Descrição --}}
                 <div class="mb-5">
                     <label for="description" class="block text-sm font-semibold text-brand-gray mb-2 uppercase tracking-wider">Descrição <span class="text-brand-gray/50 normal-case">(opcional)</span></label>
-                    <textarea id="description" name="description" rows="3"
-                        class="block w-full px-4 py-3 bg-brand-dark-input border border-brand-dark-border rounded-lg text-white placeholder-brand-gray/60 focus:outline-none focus:ring-2 focus:ring-brand-yellow focus:border-brand-yellow transition resize-none @error('description') border-red-500 @enderror">{{ old('description', $activity->description) }}</textarea>
+                    <textarea id="description" name="description" rows="6"
+                        class="block w-full px-4 py-3 bg-brand-dark-input border border-brand-dark-border rounded-lg text-white placeholder-brand-gray/60 focus:outline-none focus:ring-2 focus:ring-brand-yellow focus:border-brand-yellow transition resize-y min-h-[6rem] md:min-h-[8rem] lg:min-h-[10rem] leading-relaxed text-sm @error('description') border-red-500 @enderror">{{ old('description', $activity->description) }}</textarea>
                     @error('description')
                         <p class="mt-1 text-sm text-red-400">{{ $message }}</p>
                     @enderror

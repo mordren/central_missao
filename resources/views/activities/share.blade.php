@@ -81,6 +81,11 @@
             line-height: 1.6;
             margin-bottom: 20px;
         }
+        .pre-wrap {
+            white-space: pre-wrap;
+            word-break: break-word;
+            color: #888;
+        }
         .info {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -145,7 +150,7 @@
         @endif
         
         @if ($activity->description)
-            <p>{{ $activity->description }}</p>
+            <p class="pre-wrap">{{ $activity->description }}</p>
         @endif
         
         <div class="info">

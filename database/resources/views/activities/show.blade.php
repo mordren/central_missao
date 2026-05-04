@@ -76,7 +76,7 @@
             @endif
 
             @if ($activity->description)
-                <p class="text-brand-gray mt-3">{{ $activity->description }}</p>
+                <div class="text-brand-gray mt-3 whitespace-pre-wrap break-words">{{ $activity->description }}</div>
             @endif
 
             {{-- Info cards --}}
