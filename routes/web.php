@@ -7,6 +7,8 @@ use App\Http\Controllers\ActivityController;
 use App\Http\Controllers\ActivitySubmissionController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\LeadImportController;
+use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\PushTokenController;
 use App\Http\Controllers\RankingController;
 use Illuminate\Support\Facades\Route;
@@ -50,6 +52,7 @@ Route::middleware('auth')->group(function () {
     // Leads (admin e coordenador)
     Route::middleware('role:administrador,coordenador')->group(function () {
         Route::get('/leads', [AdminController::class, 'leads'])->name('leads.index');
+        Route::get('/leads/export', [LeadImportController::class, 'export'])->name('leads.export');
     });
 
     // Missões
@@ -90,6 +93,12 @@ Route::middleware('auth')->group(function () {
         Route::patch('/admin/users/{user}/role', [AdminController::class, 'updateRole'])->name('admin.users.updateRole');
         Route::post('/ranking/reset', [RankingController::class, 'reset'])->name('ranking.reset');
         Route::post('/admin/push/send', [PushTokenController::class, 'sendManual'])->name('admin.push.send');
+
+        // Importação de leads via Excel
+        Route::get('/leads/template', [LeadImportController::class, 'template'])->name('leads.template');
+        Route::get('/leads/import', [LeadImportController::class, 'showImport'])->name('leads.import');
+        Route::post('/leads/import/preview', [LeadImportController::class, 'preview'])->name('leads.import.preview');
+        Route::post('/leads/import/confirm', [LeadImportController::class, 'confirm'])->name('leads.import.confirm');
     });
 
     // Push notifications
@@ -99,4 +108,8 @@ Route::middleware('auth')->group(function () {
     // Completar cadastro (perfil expandido)
     Route::get('/profile/complete', [\App\Http\Controllers\ExpandedProfileController::class, 'edit'])->name('profile.complete');
     Route::post('/profile/complete', [\App\Http\Controllers\ExpandedProfileController::class, 'update'])->name('profile.complete.update');
+
+    // Perfil do usuário
+    Route::get('/profile', [ProfileController::class, 'show'])->name('profile.show');
+    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
 });

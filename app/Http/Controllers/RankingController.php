@@ -10,7 +10,7 @@ class RankingController extends Controller
     public function index()
     {
         $users = User::orderByDesc('points')
-            ->select('id', 'name', 'city', 'points')
+            ->select('id', 'name', 'nickname', 'city', 'points', 'avatar_path', 'avatar_url')
             ->paginate(50);
 
         return view('ranking', compact('users'));

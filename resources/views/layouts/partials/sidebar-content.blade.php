@@ -8,7 +8,18 @@
 
 {{-- Perfil resumido --}}
 <div class="px-6 py-4 border-b border-brand-dark-border">
-    <p class="text-sm font-semibold text-white truncate">{{ auth()->user()->name }}</p>
+    <div class="flex items-center gap-3 mb-1">
+        @php $avatarSrc = auth()->user()->avatarSrc(); @endphp
+        @if($avatarSrc)
+            <img src="{{ $avatarSrc }}" alt="{{ auth()->user()->displayName() }}"
+                 class="w-9 h-9 rounded-full object-cover border border-brand-dark-border flex-shrink-0">
+        @else
+            <div class="w-9 h-9 rounded-full bg-brand-dark-input border border-brand-dark-border flex items-center justify-center flex-shrink-0">
+                <span class="text-sm font-bold text-brand-gray select-none">{{ strtoupper(substr(auth()->user()->displayName(), 0, 1)) }}</span>
+            </div>
+        @endif
+        <p class="text-sm font-semibold text-white truncate">{{ auth()->user()->displayName() }}</p>
+    </div>
     <div class="flex items-center gap-2 mt-1">
         <span class="text-xs text-brand-yellow font-bold">{{ auth()->user()->points }} pts</span>
         <span class="text-xs text-brand-gray">•</span>
@@ -46,6 +57,11 @@
         Sobre o Site
     </a>
 
+    <a href="{{ route('profile.show') }}" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition {{ request()->routeIs('profile.show') ? 'bg-brand-yellow/10 text-brand-yellow font-semibold' : 'text-brand-gray hover:text-white hover:bg-brand-dark-input' }}">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5.121 17.804A13.937 13.937 0 0112 16c2.5 0 4.847.655 6.879 1.804M15 10a3 3 0 11-6 0 3 3 0 016 0zm6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+        Meu Perfil
+    </a>
+
     {{-- Menu coord/admin --}}
     @if (auth()->user()->canManageActivities())
         <p class="px-3 text-xs font-bold text-brand-gray uppercase tracking-widest mt-6 mb-3">Coordenação</p>
@@ -59,11 +75,6 @@
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
             Tarefas Manuais
         </a>
-
-        <a href="{{ route('leads.index') }}" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition {{ request()->routeIs('leads.index') ? 'bg-brand-yellow/10 text-brand-yellow font-semibold' : 'text-brand-gray hover:text-white hover:bg-brand-dark-input' }}">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 01-8 0M12 11v2m0 4h.01M6 21h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2z"/></svg>
-            Leads
-        </a>
     @endif
 
     {{-- Menu admin --}}
@@ -74,6 +85,16 @@
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
             Gerenciar Usuários
         </a>
+        
+        <a href="{{ route('leads.index') }}" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition {{ request()->routeIs('leads.index') ? 'bg-brand-yellow/10 text-brand-yellow font-semibold' : 'text-brand-gray hover:text-white hover:bg-brand-dark-input' }}">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 01-8 0M12 11v2m0 4h.01M6 21h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2z"/></svg>
+            Leads
+        </a>
+
+        <a href="{{ route('leads.import') }}" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition {{ request()->routeIs('leads.import*') ? 'bg-brand-yellow/10 text-brand-yellow font-semibold' : 'text-brand-gray hover:text-white hover:bg-brand-dark-input' }}">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg>
+            Importar Leads
+        </a>        
     @endif
 </nav>
 

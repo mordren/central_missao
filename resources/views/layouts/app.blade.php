@@ -73,7 +73,7 @@
             </aside>
 
             {{-- Conteúdo principal --}}
-            <div class="flex-1 lg:ml-64 flex flex-col min-h-screen">
+            <div class="flex-1 lg:ml-64 flex flex-col min-h-screen min-w-0">
                 {{-- Top bar mobile --}}
                 <header class="lg:hidden bg-brand-dark-card border-b border-brand-dark-border px-4 py-3 flex items-center justify-between sticky top-0 z-20">
                     <button onclick="toggleSidebar()" class="text-brand-gray hover:text-brand-yellow transition p-1">

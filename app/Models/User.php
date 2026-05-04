@@ -10,7 +10,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
-#[Fillable(['name', 'phone', 'email', 'password', 'role', 'city', 'neighborhood', 'referral_code', 'referred_by', 'points', 'date_of_birth', 'religion', 'education_level', 'higher_course', 'profession', 'how_known', 'first_spokesperson', 'pauta1', 'pauta2', 'pauta3', 'political_ambition', 'current_status', 'profile_completed_at', 'force_password_change'])]
+#[Fillable(['name', 'phone', 'email', 'password', 'role', 'city', 'neighborhood', 'referral_code', 'referred_by', 'points', 'date_of_birth', 'religion', 'education_level', 'higher_course', 'profession', 'how_known', 'first_spokesperson', 'pauta1', 'pauta2', 'pauta3', 'political_ambition', 'current_status', 'profile_completed_at', 'force_password_change', 'nickname', 'avatar_path', 'avatar_url'])]
 #[Hidden(['password', 'remember_token'])]
 class User extends Authenticatable
 {
@@ -25,6 +25,31 @@ class User extends Authenticatable
             'points' => 'integer',
             'force_password_change' => 'boolean',
         ];
+    }
+
+    /**
+     * The name to display publicly (nickname if set, otherwise first name).
+     */
+    public function displayName(): string
+    {
+        if ($this->nickname) {
+            return $this->nickname;
+        }
+        return explode(' ', trim($this->name))[0];
+    }
+
+    /**
+     * The URL of the user's avatar (uploaded file, external URL, or null).
+     */
+    public function avatarSrc(): ?string
+    {
+        if ($this->avatar_path) {
+            return asset('storage/' . $this->avatar_path);
+        }
+        if ($this->avatar_url) {
+            return $this->avatar_url;
+        }
+        return null;
     }
 
     public function activities()

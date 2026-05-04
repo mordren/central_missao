@@ -30,7 +30,11 @@
                 </thead>
                 <tbody>
                     @forelse ($users as $index => $u)
-                        @php $pos = $users->firstItem() + $index; @endphp
+                        @php
+                            $pos         = $users->firstItem() + $index;
+                            $displayName = $u->displayName();
+                            $avatarSrc   = $u->avatarSrc();
+                        @endphp
                         <tr class="border-b border-brand-dark-border/50 {{ $u->id === auth()->id() ? 'bg-brand-yellow/5' : '' }}">
                             <td class="px-5 py-3">
                                 @if ($pos <= 3)
@@ -42,7 +46,17 @@
                                 @endif
                             </td>
                             <td class="px-5 py-3">
-                                <span class="text-sm font-medium text-white break-words {{ $u->id === auth()->id() ? 'text-brand-yellow' : '' }}">{{ $u->name }}</span>
+                                <div class="flex items-center gap-2.5 min-w-0">
+                                    @if($avatarSrc)
+                                        <img src="{{ $avatarSrc }}" alt="{{ $displayName }}"
+                                             class="w-8 h-8 rounded-full object-cover flex-shrink-0 border border-brand-dark-border">
+                                    @else
+                                        <div class="w-8 h-8 rounded-full bg-brand-dark-input border border-brand-dark-border flex items-center justify-center flex-shrink-0">
+                                            <span class="text-xs font-bold text-brand-gray select-none">{{ strtoupper(substr($displayName, 0, 1)) }}</span>
+                                        </div>
+                                    @endif
+                                    <span class="text-sm font-medium break-words {{ $u->id === auth()->id() ? 'text-brand-yellow' : 'text-white' }}">{{ $displayName }}</span>
+                                </div>
                             </td>
                             <td class="px-5 py-3 hidden sm:table-cell">
                                 <span class="text-sm text-brand-gray break-words">{{ $u->city ?? '—' }}</span>
