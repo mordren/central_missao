@@ -17,14 +17,25 @@ firebase.initializeApp({
 
 const messaging = firebase.messaging();
 
+// Cache de IDs já processados para evitar notificações duplicadas
+const shownMessageIds = new Set();
+
 // Notificações em background (aba fechada ou em segundo plano)
 messaging.onBackgroundMessage(function (payload) {
+    // Deduplica por message_id do FCM
+    const msgId = (payload.fcmMessageId || payload.messageId || JSON.stringify(payload.notification));
+    if (shownMessageIds.has(msgId)) return;
+    shownMessageIds.add(msgId);
+    // Limpa IDs antigos após 10s para não crescer indefinidamente
+    setTimeout(() => shownMessageIds.delete(msgId), 10000);
+
     const title = (payload.notification && payload.notification.title) || 'ONÇAS DO OESTE';
     const options = {
         body:  (payload.notification && payload.notification.body) || '',
-        icon:  '/images/logo.png',
-        badge: '/images/logo.png',
+        icon:  'https://grey-finch-461274.hostingersite.com/images/logo.png',
+        badge: 'https://grey-finch-461274.hostingersite.com/images/logo.png',
         data:  payload.data || {},
+        tag:   msgId, // tag igual = substitui notificação anterior em vez de duplicar
     };
     return self.registration.showNotification(title, options);
 });
@@ -41,8 +52,8 @@ self.addEventListener('push', function (event) {
         const title   = payload.notification.title || 'ONÇAS DO OESTE';
         const options = {
             body:  payload.notification.body  || '',
-            icon:  '/images/logo.png',
-            badge: '/images/logo.png',
+            icon:  'https://grey-finch-461274.hostingersite.com/images/logo.png',
+            badge: 'https://grey-finch-461274.hostingersite.com/images/logo.png',
             data:  payload.data || {},
         };
         event.waitUntil(self.registration.showNotification(title, options));

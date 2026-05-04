@@ -141,36 +141,51 @@ import { initializeApp, getApps, getApp } from "https://www.gstatic.com/firebase
 import { getMessaging, getToken, onMessage } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-messaging.js";
 
 const firebaseConfig = {
-    apiKey:            "{{ env('FIREBASE_API_KEY') }}",
-    authDomain:        "{{ env('FIREBASE_AUTH_DOMAIN') }}",
-    projectId:         "{{ env('FIREBASE_PROJECT_ID') }}",
-    storageBucket:     "{{ env('FIREBASE_STORAGE_BUCKET') }}",
-    messagingSenderId: "{{ env('FIREBASE_MESSAGING_SENDER_ID') }}",
-    appId:             "{{ env('FIREBASE_APP_ID') }}",
-    measurementId:     "{{ env('FIREBASE_MEASUREMENT_ID') }}",
+    apiKey:            "AIzaSyCl6wDjBt69wm4tLZMlui6B-1QCDtqs58M",
+    authDomain:        "central-4a98b.firebaseapp.com",
+    projectId:         "central-4a98b",
+    storageBucket:     "central-4a98b.firebasestorage.app",
+    messagingSenderId: "438092450467",
+    appId:             "1:438092450467:web:0458699fb2c5c26d378d16",
+    measurementId:     "G-Z097BMHD4J",
 };
-const vapidKey = "{{ env('FIREBASE_VAPID_KEY') }}";
+const vapidKey = "BBOosSnqmEUfkGyeDqfORYj9pXSIj-MQ5-a6yqIkK-5rknrIh4ZPFMl0ZxxxaIiZiqcDxUZxZ7fwFgQppTvD1bg";
 
 // Garante que initializeApp não é chamado duas vezes
 function getFirebase() {
     const app = getApps().length ? getApp() : initializeApp(firebaseConfig);
     const msg = getMessaging(app);
 
-    // FOREGROUND: quando a aba está aberta o Firebase não mostra notificação automaticamente.
-    // onMessage captura e exibe via Service Worker.
+    // FOREGROUND: usa BroadcastChannel para garantir que só 1 aba mostra a notificação
+    // (evita duplicados quando há múltiplas abas abertas)
+    const bc = new BroadcastChannel('fcm_dedup');
     onMessage(msg, function (payload) {
-        const title = (payload.notification && payload.notification.title) || 'ONÇAS DO OESTE';
-        const body  = (payload.notification && payload.notification.body)  || '';
-        if (Notification.permission === 'granted') {
-            navigator.serviceWorker.getRegistration('/firebase-messaging-sw.js').then(function (reg) {
-                if (reg) reg.showNotification(title, {
-                    body,
-                    icon:  '/images/logo.png',
-                    badge: '/images/logo.png',
-                    data:  payload.data || {},
+        const msgId = payload.fcmMessageId || JSON.stringify(payload.notification);
+
+        // Tenta "ganhar" o lock — quem postar primeiro processa
+        bc.postMessage({ msgId });
+        let processed = false;
+        bc.onmessage = function(e) {
+            if (e.data && e.data.msgId === msgId) processed = true;
+        };
+
+        // Pequeno delay — se outra aba já processou, não mostrar
+        setTimeout(function() {
+            if (processed) return;
+            const title = (payload.notification && payload.notification.title) || 'ONÇAS DO OESTE';
+            const body  = (payload.notification && payload.notification.body)  || '';
+            if (Notification.permission === 'granted') {
+                navigator.serviceWorker.getRegistration('/firebase-messaging-sw.js').then(function (reg) {
+                    if (reg) reg.showNotification(title, {
+                        body,
+                        icon:  'https://grey-finch-461274.hostingersite.com/images/logo.png',
+                        badge: 'https://grey-finch-461274.hostingersite.com/images/logo.png',
+                        data:  payload.data || {},
+                        tag:   msgId,
+                    });
                 });
-            });
-        }
+            }
+        }, 200);
     });
 
     return msg;
@@ -190,8 +205,13 @@ async function registarSW() {
 
 async function salvarToken() {
     try {
-        await registarSW();
-        const swReg = await navigator.serviceWorker.getRegistration('/firebase-messaging-sw.js');
+        const swReg = await registarSW();
+        if (!swReg) { console.warn('FCM: service worker não registado'); return; }
+
+        // Cancelar subscrição push antiga (VAPID key diferente causa "push service error")
+        const existingSub = await swReg.pushManager.getSubscription();
+        if (existingSub) await existingSub.unsubscribe();
+
         const token = await getToken(getFirebase(), { vapidKey, serviceWorkerRegistration: swReg });
         if (!token) { console.warn('FCM: token vazio'); return; }
         await fetch('/salvar-token', {
@@ -204,7 +224,11 @@ async function salvarToken() {
         });
         localStorage.setItem('push_subscribed', '1');
     } catch (e) {
-        console.error('Erro ao salvar token push:', e);
+        if (e && e.name === 'AbortError' && e.message && e.message.includes('push service')) {
+            console.warn('FCM: push service bloqueado pelo browser. No Brave, ative "Use Google services for push messaging" em brave://settings/privacy');
+        } else {
+            console.error('Erro ao salvar token push:', e);
+        }
     }
 }
 
@@ -248,7 +272,29 @@ function initBanner() {
         // Mostrar banner
         box.style.removeProperty('display');
     } else if (permission === 'granted' && subscribed) {
-        registarSW();
+        // Verifica se o token ainda está registado no servidor
+        registarSW().then(async function(swReg) {
+            if (!swReg) return;
+            try {
+                const currentToken = await getToken(getFirebase(), { vapidKey, serviceWorkerRegistration: swReg });
+                if (!currentToken) { localStorage.removeItem('push_subscribed'); return; }
+                const res = await fetch('/check-token', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                    },
+                    body: JSON.stringify({ token: currentToken }),
+                });
+                const json = await res.json();
+                if (!json.registered) {
+                    // Token não existe no servidor — re-registar silenciosamente
+                    localStorage.removeItem('push_subscribed');
+                    await salvarToken();
+                }
+            } catch (e) { /* silencioso */ }
+        });
+        getFirebase();
     }
 }
 

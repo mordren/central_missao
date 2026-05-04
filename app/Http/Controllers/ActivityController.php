@@ -6,6 +6,7 @@ use App\Models\Activity;
 use App\Models\User;
 use App\Models\ActivitySubmission;
 use App\Services\AttendanceService;
+use App\Services\FcmService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Carbon\Carbon;
@@ -83,6 +84,17 @@ class ActivityController extends Controller
         ]);
 
         app(AttendanceService::class)->processLazyPenalties();
+
+        // Notificar todos os utilizadores sobre a nova atividade
+        try {
+            app(FcmService::class)->sendToAll(
+                '🐆 Nova missão: ' . $activity->title,
+                $activity->description ? \Str::limit(strip_tags($activity->description), 100) : 'Uma nova missão foi publicada!',
+                ['url' => route('activities.show', $activity), 'activity_id' => (string) $activity->id]
+            );
+        } catch (\Throwable $e) {
+            \Log::error('FCM sendToAll falhou: ' . $e->getMessage());
+        }
 
         return redirect()->route('activities.show', $activity)->with('success', 'Atividade "' . $activity->title . '" criada com sucesso!');
     }
@@ -173,6 +185,17 @@ class ActivityController extends Controller
         }
 
         $activity->update($updateData);
+
+        // Notificar sobre atualização da atividade
+        try {
+            app(FcmService::class)->sendToAll(
+                '📢 Missão atualizada: ' . $activity->title,
+                'Houve alterações numa missão. Verifica os detalhes.',
+                ['url' => route('activities.show', $activity), 'activity_id' => (string) $activity->id]
+            );
+        } catch (\Throwable $e) {
+            \Log::error('FCM sendToAll (update) falhou: ' . $e->getMessage());
+        }
 
         return redirect()->route('activities.show', $activity)->with('success', 'Atividade atualizada com sucesso!');
     }

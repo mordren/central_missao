@@ -18,19 +18,32 @@ class ExpandedProfileController extends Controller
         $user = Auth::user();
 
         $data = $request->validate([
-            'date_of_birth' => 'nullable|date',
-            'religion' => 'nullable|string|max:120',
-            'education_level' => 'nullable|string|max:120',
-            'higher_course' => 'nullable|string|max:150',
-            'profession' => 'nullable|string|max:150',
-            'how_known' => 'nullable|string|max:1000',
-            'first_spokesperson' => 'nullable|string|max:150',
-            'pauta1' => 'nullable|string|max:250',
-            'pauta2' => 'nullable|string|max:250',
-            'pauta3' => 'nullable|string|max:250',
-            'political_ambition' => 'nullable|string|max:150',
-            'current_status' => 'nullable|string|max:150',
+            'date_of_birth'            => 'required|date',
+            'religion'                 => 'required|string|max:120',
+            'religion_outro'           => 'nullable|string|max:120',
+            'education_level'          => 'required|string|max:120',
+            'higher_course'            => 'nullable|string|max:150',
+            'profession'               => 'nullable|string|max:150',
+            'how_known'                => 'required|string|max:1000',
+            'first_spokesperson'       => 'required|string|max:150',
+            'first_spokesperson_outro' => 'nullable|string|max:150',
+            'pauta1'                   => 'required|string|max:250',
+            'pauta2'                   => 'nullable|string|max:250',
+            'pauta3'                   => 'nullable|string|max:250',
+            'political_ambition'       => 'required|string|max:150',
+            'current_status'           => 'required|string|max:255',
         ]);
+
+        // When "Outra" is selected, use the typed custom value instead
+        if (($data['religion'] ?? '') === 'Outra' && !empty($data['religion_outro'])) {
+            $data['religion'] = $data['religion_outro'];
+        }
+        unset($data['religion_outro']);
+
+        if (($data['first_spokesperson'] ?? '') === 'Outro' && !empty($data['first_spokesperson_outro'])) {
+            $data['first_spokesperson'] = $data['first_spokesperson_outro'];
+        }
+        unset($data['first_spokesperson_outro']);
 
         $wasCompleted = (bool) $user->profile_completed_at;
 

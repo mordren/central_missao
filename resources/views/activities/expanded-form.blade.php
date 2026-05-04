@@ -22,28 +22,47 @@
             <label class="block font-semibold mb-1">Telefone</label>
             <input type="text" name="telefone" class="form-input w-full" required value="{{ old('telefone') }}">
         </div>
+
+        {{-- Religião --}}
         <div class="mb-4">
             <label class="block font-semibold mb-1">Religião</label>
-            <select name="religiao" class="form-select w-full" required onchange="document.getElementById('religiao_outro').style.display = this.value === 'Outro' ? 'block' : 'none';">
+            <select name="religiao" class="form-select w-full" required onchange="cmToggle(this,'rev_religiao')">
                 <option value="">Selecione</option>
-                <option value="Católico" {{ old('religiao') == 'Católico' ? 'selected' : '' }}>Católico</option>
-                <option value="Evangélico" {{ old('religiao') == 'Evangélico' ? 'selected' : '' }}>Evangélico</option>
-                <option value="Ateu" {{ old('religiao') == 'Ateu' ? 'selected' : '' }}>Ateu</option>
-                <option value="Outro" {{ old('religiao') == 'Outro' ? 'selected' : '' }}>Outro</option>
+                <option value="Católico"           {{ old('religiao') == 'Católico'           ? 'selected' : '' }}>Católico</option>
+                <option value="Protestante"        {{ old('religiao') == 'Protestante'        ? 'selected' : '' }}>Protestante</option>
+                <option value="Matrizes Africanas" {{ old('religiao') == 'Matrizes Africanas' ? 'selected' : '' }}>Matrizes Africanas</option>
+                <option value="Judeu"              {{ old('religiao') == 'Judeu'              ? 'selected' : '' }}>Judeu</option>
+                <option value="Ateu"               {{ old('religiao') == 'Ateu'               ? 'selected' : '' }}>Ateu</option>
+                <option value="Outra"              {{ old('religiao') == 'Outra'              ? 'selected' : '' }}>Outra</option>
             </select>
-            <input type="text" name="religiao_outro" id="religiao_outro" class="form-input w-full mt-2" placeholder="Qual?" style="display:{{ old('religiao') == 'Outro' ? 'block' : 'none' }}" value="{{ old('religiao_outro') }}">
+            <div id="rev_religiao" class="cm-reveal {{ old('religiao') == 'Outra' ? 'open' : '' }}">
+                <div>
+                    <input type="text" name="religiao_outro" placeholder="Qual religião?"
+                        class="form-input w-full mt-2" value="{{ old('religiao_outro') }}">
+                </div>
+            </div>
         </div>
+
+        {{-- Nível de escolaridade --}}
         <div class="mb-4">
-            <label class="block font-semibold mb-1">Graduação</label>
+            <label class="block font-semibold mb-1">Nível de escolaridade</label>
             <select name="graduacao" class="form-select w-full" required>
                 <option value="">Selecione</option>
-                <option value="Médio Incompleto" {{ old('graduacao') == 'Médio Incompleto' ? 'selected' : '' }}>Médio Incompleto</option>
-                <option value="Médio completo" {{ old('graduacao') == 'Médio completo' ? 'selected' : '' }}>Médio completo</option>
-                <option value="Superior Incompleto" {{ old('graduacao') == 'Superior Incompleto' ? 'selected' : '' }}>Superior Incompleto</option>
-                <option value="Superior Completo" {{ old('graduacao') == 'Superior Completo' ? 'selected' : '' }}>Superior Completo</option>
-                <option value="Acima" {{ old('graduacao') == 'Acima' ? 'selected' : '' }}>Acima</option>
+                @foreach([
+                    'Ensino Fundamental Incompleto',
+                    'Ensino Fundamental Completo',
+                    'Ensino Médio Incompleto',
+                    'Ensino Médio Completo',
+                    'Ensino Superior Incompleto',
+                    'Ensino Superior Completo',
+                    'Pós-Graduação Incompleta',
+                    'Pós-Graduação Completa',
+                ] as $opt)
+                    <option value="{{ $opt }}" {{ old('graduacao') == $opt ? 'selected' : '' }}>{{ $opt }}</option>
+                @endforeach
             </select>
         </div>
+
         <div class="mb-4">
             <label class="block font-semibold mb-1">Interesses (opcional)</label>
             <input type="text" name="interesses" class="form-input w-full" value="{{ old('interesses') }}">
@@ -52,4 +71,18 @@
     </form>
     </div>
 </div>
+
+<style>
+    .cm-reveal { display:grid; grid-template-rows:0fr; opacity:0; transition:grid-template-rows .28s ease,opacity .22s ease; }
+    .cm-reveal > div { overflow:hidden; }
+    .cm-reveal.open { grid-template-rows:1fr; opacity:1; }
+</style>
+<script>
+    function cmToggle(select, revealId) {
+        const reveal = document.getElementById(revealId);
+        const isOther = select.value === 'Outra' || select.value === 'Outro';
+        reveal.classList.toggle('open', isOther);
+        if (isOther) { const inp = reveal.querySelector('input'); if (inp) inp.focus(); }
+    }
+</script>
 @endsection

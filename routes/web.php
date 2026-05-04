@@ -11,6 +11,14 @@ use App\Http\Controllers\PushTokenController;
 use App\Http\Controllers\RankingController;
 use Illuminate\Support\Facades\Route;
 
+// Service Worker do Firebase — precisa estar na raiz para ter scope em todo o site
+Route::get('/firebase-messaging-sw.js', function () {
+    $path = public_path('firebase-messaging-sw.js');
+    return response(file_get_contents($path), 200)
+        ->header('Content-Type', 'application/javascript; charset=utf-8')
+        ->header('Service-Worker-Allowed', '/');
+});
+
 Route::get('/', function () {
     return redirect('/login');
 });
@@ -81,10 +89,12 @@ Route::middleware('auth')->group(function () {
         Route::get('/admin/users', [AdminController::class, 'users'])->name('admin.users');
         Route::patch('/admin/users/{user}/role', [AdminController::class, 'updateRole'])->name('admin.users.updateRole');
         Route::post('/ranking/reset', [RankingController::class, 'reset'])->name('ranking.reset');
+        Route::post('/admin/push/send', [PushTokenController::class, 'sendManual'])->name('admin.push.send');
     });
 
     // Push notifications
     Route::post('/salvar-token', [PushTokenController::class, 'store'])->name('push.token');
+    Route::post('/check-token', [PushTokenController::class, 'check'])->name('push.check');
 
     // Completar cadastro (perfil expandido)
     Route::get('/profile/complete', [\App\Http\Controllers\ExpandedProfileController::class, 'edit'])->name('profile.complete');

@@ -25,17 +25,17 @@ class ExpandedFormController extends Controller
             'idade' => 'required|integer|min:10|max:120',
             'cidade' => 'required|string|max:255',
             'telefone' => 'required|string|max:20',
-            'religiao' => 'required|string|max:30',
-            'religiao_outro' => 'nullable|string|max:50',
-            'graduacao' => 'required|string|max:30',
+            'religiao' => 'required|string|max:50',
+            'religiao_outro' => 'nullable|string|max:120',
+            'graduacao' => 'required|string|max:50',
             'interesses' => 'nullable|string|max:255',
         ];
 
         $validated = $request->validate($fields);
 
-        // Se religião for "Outro", salva o campo extra
-        if ($validated['religiao'] === 'Outro' && !empty($validated['religiao_outro'])) {
-            $validated['religiao'] = 'Outro: ' . $validated['religiao_outro'];
+        // Se religião for "Outra", salva o valor digitado
+        if ($validated['religiao'] === 'Outra' && !empty($validated['religiao_outro'])) {
+            $validated['religiao'] = $validated['religiao_outro'];
         }
         unset($validated['religiao_outro']);
 
