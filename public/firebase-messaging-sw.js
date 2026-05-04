@@ -40,25 +40,6 @@ messaging.onBackgroundMessage(function (payload) {
     return self.registration.showNotification(title, options);
 });
 
-// Fallback: captura push raw caso o SDK compat não intercepte
-self.addEventListener('push', function (event) {
-    // O SDK compat já trata pushes do FCM; este fallback cobre payloads customizados
-    if (!event.data) return;
-    let payload;
-    try { payload = event.data.json(); } catch (e) { return; }
-
-    // Só actua se não for um push FCM (que o SDK já tratou)
-    if (payload.notification) {
-        const title   = payload.notification.title || 'ONÇAS DO OESTE';
-        const options = {
-            body:  payload.notification.body  || '',
-            icon:  'https://grey-finch-461274.hostingersite.com/images/logo.png',
-            badge: 'https://grey-finch-461274.hostingersite.com/images/logo.png',
-            data:  payload.data || {},
-        };
-        event.waitUntil(self.registration.showNotification(title, options));
-    }
-});
 
 self.addEventListener('notificationclick', function (event) {
     event.notification.close();

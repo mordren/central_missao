@@ -89,7 +89,7 @@ class ActivityController extends Controller
         try {
             app(FcmService::class)->sendToAll(
                 '🐆 Nova missão: ' . $activity->title,
-                $activity->description ? \Str::limit(strip_tags($activity->description), 100) : 'Uma nova missão foi publicada!',
+                $activity->description ? \Str::limit(strip_tags($activity->description), 120) : 'Uma nova missão foi publicada!',
                 ['url' => route('activities.show', $activity), 'activity_id' => (string) $activity->id]
             );
         } catch (\Throwable $e) {
@@ -190,7 +190,7 @@ class ActivityController extends Controller
         try {
             app(FcmService::class)->sendToAll(
                 '📢 Missão atualizada: ' . $activity->title,
-                'Houve alterações numa missão. Verifica os detalhes.',
+                $activity->description ? \Str::limit(strip_tags($activity->description), 120) : 'Houve alterações numa missão. Verifica os detalhes.',
                 ['url' => route('activities.show', $activity), 'activity_id' => (string) $activity->id]
             );
         } catch (\Throwable $e) {

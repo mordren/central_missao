@@ -16,9 +16,12 @@ class PushTokenController extends Controller
 
         $userId = $request->user()->id;
 
-        // Remove todos os tokens antigos deste utilizador e guarda só o mais recente
-        PushToken::where('user_id', $userId)->delete();
-        PushToken::create([
+        // Se o token já pertence a este utilizador, nada a fazer
+        // Se pertence a outro utilizador (mesmo device, conta trocada), remove esse registo
+        PushToken::where('token', $request->token)->where('user_id', '!=', $userId)->delete();
+
+        // Cria apenas se ainda não existe (preserva outros dispositivos do mesmo utilizador)
+        PushToken::firstOrCreate([
             'user_id' => $userId,
             'token'   => $request->token,
         ]);

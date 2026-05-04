@@ -152,43 +152,39 @@ const firebaseConfig = {
 const vapidKey = "BBOosSnqmEUfkGyeDqfORYj9pXSIj-MQ5-a6yqIkK-5rknrIh4ZPFMl0ZxxxaIiZiqcDxUZxZ7fwFgQppTvD1bg";
 
 // Garante que initializeApp não é chamado duas vezes
+let _fcmMessaging = null; // instância única — evita múltiplos onMessage
+
 function getFirebase() {
+    if (_fcmMessaging) return _fcmMessaging;
+
     const app = getApps().length ? getApp() : initializeApp(firebaseConfig);
-    const msg = getMessaging(app);
+    _fcmMessaging = getMessaging(app);
 
-    // FOREGROUND: usa BroadcastChannel para garantir que só 1 aba mostra a notificação
-    // (evita duplicados quando há múltiplas abas abertas)
-    const bc = new BroadcastChannel('fcm_dedup');
-    onMessage(msg, function (payload) {
-        const msgId = payload.fcmMessageId || JSON.stringify(payload.notification);
+    // FOREGROUND: usa localStorage partilhado entre abas para mostrar só 1 notificação
+    onMessage(_fcmMessaging, function (payload) {
+        const msgId  = payload.fcmMessageId || JSON.stringify(payload.notification);
+        const lsKey  = 'fcm_shown_' + msgId;
+        const already = localStorage.getItem(lsKey);
+        if (already) return; // outra aba já processou
+        localStorage.setItem(lsKey, '1');
+        setTimeout(() => localStorage.removeItem(lsKey), 5000);
 
-        // Tenta "ganhar" o lock — quem postar primeiro processa
-        bc.postMessage({ msgId });
-        let processed = false;
-        bc.onmessage = function(e) {
-            if (e.data && e.data.msgId === msgId) processed = true;
-        };
-
-        // Pequeno delay — se outra aba já processou, não mostrar
-        setTimeout(function() {
-            if (processed) return;
-            const title = (payload.notification && payload.notification.title) || 'ONÇAS DO OESTE';
-            const body  = (payload.notification && payload.notification.body)  || '';
-            if (Notification.permission === 'granted') {
-                navigator.serviceWorker.getRegistration('/firebase-messaging-sw.js').then(function (reg) {
-                    if (reg) reg.showNotification(title, {
-                        body,
-                        icon:  'https://grey-finch-461274.hostingersite.com/images/logo.png',
-                        badge: 'https://grey-finch-461274.hostingersite.com/images/logo.png',
-                        data:  payload.data || {},
-                        tag:   msgId,
-                    });
+        const title = (payload.notification && payload.notification.title) || 'ONÇAS DO OESTE';
+        const body  = (payload.notification && payload.notification.body)  || '';
+        if (Notification.permission === 'granted') {
+            navigator.serviceWorker.getRegistration('/firebase-messaging-sw.js').then(function (reg) {
+                if (reg) reg.showNotification(title, {
+                    body,
+                    icon:  'https://grey-finch-461274.hostingersite.com/images/logo.png',
+                    badge: 'https://grey-finch-461274.hostingersite.com/images/logo.png',
+                    data:  payload.data || {},
+                    tag:   msgId,
                 });
-            }
-        }, 200);
+            });
+        }
     });
 
-    return msg;
+    return _fcmMessaging;
 }
 
 async function registarSW() {
@@ -296,6 +292,16 @@ function initBanner() {
         });
         getFirebase();
     }
+}
+
+// ?reset-push=1 na URL limpa o estado local — útil para forçar re-registo em mobile sem consola
+if (new URLSearchParams(location.search).get('reset-push') === '1') {
+    localStorage.removeItem('push_subscribed');
+    localStorage.removeItem('push_dismissed_until');
+    // Remove o parâmetro da URL sem recarregar
+    const url = new URL(location.href);
+    url.searchParams.delete('reset-push');
+    history.replaceState(null, '', url.toString());
 }
 
 // CORREÇÃO CRÍTICA: type="module" com imports remotos resolve os imports de forma assíncrona.
