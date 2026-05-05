@@ -115,9 +115,9 @@ class AttendanceService
             return 'already_participated';
         }
 
-        $rsvpConfirmed  = $pivot && $pivot->rsvp_confirmed;
-        $multiplier     = $rsvpConfirmed ? 2 : 1;
-        $pointsAwarded  = $activity->points * $multiplier;
+        $rsvpConfirmed = $pivot && $pivot->rsvp_confirmed;
+        // Past/manual missions never award ranking points
+        $pointsAwarded = $activity->skip_points ? 0 : ($activity->points * ($rsvpConfirmed ? 2 : 1));
 
         DB::transaction(function () use ($user, $activity, $pivot, $pointsAwarded) {
             if ($pivot) {
@@ -147,9 +147,11 @@ class AttendanceService
                 ]);
             }
 
-            DB::table('users')
-                ->where('id', $user->id)
-                ->increment('points', (int) $pointsAwarded);
+            if ($pointsAwarded > 0) {
+                DB::table('users')
+                    ->where('id', $user->id)
+                    ->increment('points', (int) $pointsAwarded);
+            }
         });
 
         return $rsvpConfirmed ? 'double_points' : 'points_awarded';
@@ -171,6 +173,7 @@ class AttendanceService
             ->where('au.rsvp_confirmed', true)
             ->where('au.did_participate', false)
             ->where('au.penalty_applied', false)
+            ->where('a.skip_points', false)
             ->select(
                 'au.activity_id',
                 'au.user_id',

@@ -1,11 +1,16 @@
 @extends('layouts.app')
 
-@section('title', 'Meu Perfil - ONÇAS DO OESTE')
+@section('title', 'Editar Perfil - ONÇAS DO OESTE')
 
 @section('content')
 <div class="max-w-2xl mx-auto px-4 py-5 sm:py-6 space-y-6">
 
-    <h1 class="text-lg sm:text-xl font-bold text-white tracking-tight uppercase">Meu Perfil</h1>
+    <div class="flex items-center gap-3">
+        <a href="{{ route('profile.show') }}" class="text-brand-gray hover:text-brand-yellow transition p-1 -ml-1" title="Voltar ao perfil">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+        </a>
+        <h1 class="text-lg sm:text-xl font-bold text-white tracking-tight uppercase">Editar Perfil</h1>
+    </div>
 
     {{-- Success --}}
     @if(session('success'))
@@ -156,6 +161,10 @@
             <a href="{{ route('password.change') }}"
                class="flex-1 sm:flex-none text-center bg-brand-dark-input hover:bg-brand-dark-border text-white font-semibold py-3 px-6 rounded-lg transition text-sm border border-brand-dark-border">
                 Alterar senha
+            </a>
+            <a href="{{ route('profile.show') }}"
+               class="flex-1 sm:flex-none text-center text-brand-gray hover:text-white font-semibold py-3 px-6 rounded-lg transition text-sm">
+                Cancelar
             </a>
         </div>
 

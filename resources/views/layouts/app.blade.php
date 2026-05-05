@@ -57,7 +57,7 @@
         {{-- LAYOUT COM SIDEBAR --}}
         <div class="flex min-h-screen">
             {{-- Sidebar desktop (fixa) --}}
-            <aside id="sidebar" class="hidden lg:flex flex-col w-64 bg-brand-dark-card border-r border-brand-dark-border fixed inset-y-0 left-0 z-30">
+            <aside id="sidebar" class="hidden lg:flex flex-col w-52 bg-brand-dark-card border-r border-brand-dark-border fixed inset-y-0 left-0 z-30">
                 @include('layouts.partials.sidebar-content')
             </aside>
 
@@ -73,7 +73,7 @@
             </aside>
 
             {{-- Conteúdo principal --}}
-            <div class="flex-1 lg:ml-64 flex flex-col min-h-screen min-w-0">
+            <div class="flex-1 lg:ml-52 flex flex-col min-h-screen min-w-0">
                 {{-- Top bar mobile --}}
                 <header class="lg:hidden bg-brand-dark-card border-b border-brand-dark-border px-4 py-3 flex items-center justify-between sticky top-0 z-20">
                     <button onclick="toggleSidebar()" class="text-brand-gray hover:text-brand-yellow transition p-1">
@@ -82,9 +82,18 @@
                     <a href="{{ route('dashboard') }}" class="flex items-center gap-2 min-w-0 hover:opacity-80 transition">
                         <img src="{{ asset('public/images/logo.png') }}" alt="ONÇAS DO OESTE" class="h-8 w-auto flex-shrink-0">
                         <span class="font-bold text-sm tracking-tight truncate">ONÇAS DO OESTE</span>
-
                     </a>
-                    <div class="w-8"></div>
+                    {{-- Profile icon (top-right, mobile only) --}}
+                    <a href="{{ route('profile.show') }}" title="Meu perfil" class="flex-shrink-0 hover:opacity-80 transition">
+                        @php $mobileAvatar = auth()->user()->avatarSrc(); @endphp
+                        @if($mobileAvatar)
+                            <img src="{{ $mobileAvatar }}" alt="Perfil" class="w-8 h-8 rounded-full object-cover border border-brand-dark-border">
+                        @else
+                            <div class="w-8 h-8 rounded-full bg-brand-dark-input border border-brand-dark-border flex items-center justify-center">
+                                <span class="text-xs font-bold text-brand-yellow select-none">{{ strtoupper(substr(auth()->user()->displayName(), 0, 1)) }}</span>
+                            </div>
+                        @endif
+                    </a>
                 </header>
 
                 {{-- Conteúdo da página --}}

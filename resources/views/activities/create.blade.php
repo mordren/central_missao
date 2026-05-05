@@ -3,7 +3,7 @@
 @section('title', 'Criar Missão - ONÇAS DO OESTE')
 
 @section('content')
-    <div class="max-w-2xl mx-auto px-4 py-6 sm:py-8">
+    <div class="max-w-2xl mx-auto px-4 py-6 sm:py-8" x-data="{ isPast: {{ old('is_past_mission') ? 'true' : 'false' }} }">
         <h1 class="text-lg sm:text-xl font-bold text-white tracking-tight uppercase mb-6">Criar Missão</h1>
         <div class="bg-brand-dark-card border border-brand-dark-border rounded-2xl p-4 sm:p-8">
             @if ($errors->any())
@@ -16,6 +16,20 @@
 
             <form method="POST" action="{{ route('activities.store') }}" enctype="multipart/form-data">
                 @csrf
+
+                {{-- Missão do passado toggle --}}
+                <div class="mb-6 p-4 bg-brand-dark-input border border-brand-dark-border rounded-xl">
+                    <label class="flex items-start gap-3 cursor-pointer select-none">
+                        <input type="checkbox" name="is_past_mission" value="1"
+                               x-model="isPast"
+                               {{ old('is_past_mission') ? 'checked' : '' }}
+                               class="mt-0.5 w-4 h-4 accent-yellow-400 cursor-pointer flex-shrink-0">
+                        <div>
+                            <span class="text-sm font-bold text-brand-yellow block">Missão do Passado</span>
+                            <span class="text-xs text-brand-gray">Marque se esta missão já aconteceu. A data pode ser anterior a hoje. Pontos não são atribuídos automaticamente.</span>
+                        </div>
+                    </label>
+                </div>
 
                 {{-- Título --}}
                 <div class="mb-5">
@@ -95,7 +109,10 @@
 
                 {{-- Data/Hora --}}
                 <div class="mb-5">
-                    <label for="date_time" class="block text-sm font-semibold text-brand-gray mb-2 uppercase tracking-wider">Data e hora</label>
+                    <label for="date_time" class="block text-sm font-semibold text-brand-gray mb-2 uppercase tracking-wider">
+                        Data e hora
+                        <span x-show="isPast" class="text-brand-yellow normal-case font-normal">(data passada permitida)</span>
+                    </label>
                     <input type="datetime-local" id="date_time" name="date_time" value="{{ old('date_time') }}" required
                         class="block w-full px-4 py-3 bg-brand-dark-input border border-brand-dark-border rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-brand-yellow focus:border-brand-yellow transition @error('date_time') border-red-500 @enderror">
                     @error('date_time')
@@ -115,8 +132,11 @@
 
                 {{-- Pontuação --}}
                 <div class="mb-8">
-                    <label for="points" class="block text-sm font-semibold text-brand-gray mb-2 uppercase tracking-wider">Pontuação</label>
-                    <input type="number" id="points" name="points" value="{{ old('points', 10) }}" min="1" required
+                    <label for="points" class="block text-sm font-semibold text-brand-gray mb-2 uppercase tracking-wider">
+                        Pontuação
+                        <span x-show="isPast" class="text-brand-gray/60 normal-case font-normal">(informativo — não atribuído automaticamente)</span>
+                    </label>
+                    <input type="number" id="points" name="points" value="{{ old('points', 10) }}" min="0" required
                         class="block w-full px-4 py-3 bg-brand-dark-input border border-brand-dark-border rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-brand-yellow focus:border-brand-yellow transition @error('points') border-red-500 @enderror">
                     @error('points')
                         <p class="mt-1 text-sm text-red-400">{{ $message }}</p>
@@ -125,7 +145,8 @@
 
                 {{-- Botão --}}
                 <button type="submit" class="w-full bg-brand-yellow hover:bg-brand-yellow-hover text-brand-dark font-bold py-3.5 px-4 rounded-lg transition duration-200 focus:outline-none focus:ring-2 focus:ring-brand-yellow focus:ring-offset-2 focus:ring-offset-brand-dark uppercase tracking-wider text-sm">
-                    Criar Missão
+                    <span x-show="!isPast">Criar Missão</span>
+                    <span x-show="isPast">Registrar Missão Passada</span>
                 </button>
             </form>
         </div>

@@ -148,11 +148,15 @@
                             type="text"
                             id="referral_code_input"
                             name="referral_code_input"
-                            value="{{ old('referral_code_input') }}"
+                            value="{{ old('referral_code_input', request('ref')) }}"
                             placeholder="Ex: A1B2C3D4"
-                            class="block w-full pl-10 pr-4 py-3 bg-brand-dark-input border border-brand-dark-border rounded-lg text-white placeholder-brand-gray/60 focus:outline-none focus:ring-2 focus:ring-brand-yellow focus:border-brand-yellow transition"
+                            {{ request('ref') ? 'readonly' : '' }}
+                            class="block w-full pl-10 pr-4 py-3 bg-brand-dark-input border border-brand-dark-border rounded-lg text-white placeholder-brand-gray/60 focus:outline-none focus:ring-2 focus:ring-brand-yellow focus:border-brand-yellow transition {{ request('ref') ? 'opacity-75 cursor-not-allowed' : '' }}"
                         >
                     </div>
+                    @if(request('ref'))
+                        <p class="text-xs text-brand-yellow mt-1">Você foi convidado! Código aplicado automaticamente.</p>
+                    @endif
                 </div>
 
                 {{-- Campo Senha --}}

@@ -37,13 +37,18 @@ class ActivityController extends Controller
 
     public function store(Request $request)
     {
+        $isPastMission = (bool) $request->boolean('is_past_mission');
+
         $validated = $request->validate([
             'title' => ['required', 'string', 'max:255'],
             'description' => ['nullable', 'string'],
             'type' => ['required', 'in:evento_presencial,denuncia,tarefa_manual,convite'],
-            'date_time' => ['required', 'date', 'after_or_equal:now'],
+            'date_time' => array_filter([
+                'required', 'date',
+                $isPastMission ? 'before:now' : 'after_or_equal:now',
+            ]),
             'location' => ['nullable', 'string', 'max:255'],
-            'points' => ['required', 'integer', 'min:1'],
+            'points' => ['required', 'integer', 'min:0'],
             // banner max in kilobytes (10240 KB = 10 MB)
             'banner' => ['nullable', 'image', 'max:10240'],
         ], [
@@ -51,8 +56,9 @@ class ActivityController extends Controller
             'type.required' => 'Selecione o tipo da atividade.',
             'date_time.required' => 'A data/hora é obrigatória.',
             'date_time.after_or_equal' => 'A data deve ser futura.',
+            'date_time.before' => 'A data de uma missão passada deve ser anterior a agora.',
             'points.required' => 'A pontuação é obrigatória.',
-            'points.min' => 'A pontuação deve ser pelo menos 1.',
+            'points.min' => 'A pontuação deve ser pelo menos 0.',
             'banner.max' => 'O banner deve ter no máximo 10MB.',
         ]);
 
@@ -75,25 +81,33 @@ class ActivityController extends Controller
             $deadline = Carbon::parse($validated['date_time'])->addHours(24);
         }
 
+        $status      = $isPastMission ? 'completed' : 'active';
+        $completedAt = $isPastMission ? Carbon::parse($validated['date_time']) : null;
+
         $activity = Activity::create([
             ...$validated,
-            'deadline' => $deadline,
-            'created_by' => auth()->id(),
-            'qr_code' => Str::uuid()->toString(),
-            'banner' => $bannerPath,
+            'deadline'     => $deadline,
+            'created_by'   => auth()->id(),
+            'qr_code'      => Str::uuid()->toString(),
+            'banner'       => $bannerPath,
+            'status'       => $status,
+            'completed_at' => $completedAt,
+            'skip_points'  => $isPastMission,
         ]);
 
         app(AttendanceService::class)->processLazyPenalties();
 
-        // Notificar todos os utilizadores sobre a nova atividade
-        try {
-            app(FcmService::class)->sendToAll(
-                '🐆 Nova missão: ' . $activity->title,
-                $activity->description ? \Str::limit(strip_tags($activity->description), 120) : 'Uma nova missão foi publicada!',
-                ['url' => route('activities.show', $activity), 'activity_id' => (string) $activity->id]
-            );
-        } catch (\Throwable $e) {
-            \Log::error('FCM sendToAll falhou: ' . $e->getMessage());
+        // Only notify users for active (future) missions
+        if (!$isPastMission) {
+            try {
+                app(FcmService::class)->sendToAll(
+                    '🐆 Nova missão: ' . $activity->title,
+                    $activity->description ? \Str::limit(strip_tags($activity->description), 120) : 'Uma nova missão foi publicada!',
+                    ['url' => route('activities.show', $activity), 'activity_id' => (string) $activity->id]
+                );
+            } catch (\Throwable $e) {
+                \Log::error('FCM sendToAll falhou: ' . $e->getMessage());
+            }
         }
 
         return redirect()->route('activities.show', $activity)->with('success', 'Atividade "' . $activity->title . '" criada com sucesso!');
@@ -116,7 +130,32 @@ class ActivityController extends Controller
                 ->first();
         }
 
-        return view('activities.show', compact('activity', 'userSubmission', 'rsvpCount', 'userRsvp', 'rsvpParticipants', 'confirmedParticipants'));
+        // Photos
+        $approvedPhotos = $activity->approvedPhotos()->with('uploader')->get();
+        $pendingPhotos  = collect();
+        if (auth()->check()) {
+            $user = auth()->user();
+            if ($user->isAdmin() || $user->isCoordinator()) {
+                $pendingPhotos = $activity->photos()
+                    ->where('status', 'pending')
+                    ->with('uploader')
+                    ->orderBy('created_at')
+                    ->get();
+            } else {
+                $pendingPhotos = $activity->photos()
+                    ->where('status', 'pending')
+                    ->where('user_id', auth()->id())
+                    ->with('uploader')
+                    ->orderBy('created_at')
+                    ->get();
+            }
+        }
+
+        return view('activities.show', compact(
+            'activity', 'userSubmission', 'rsvpCount', 'userRsvp',
+            'rsvpParticipants', 'confirmedParticipants',
+            'approvedPhotos', 'pendingPhotos'
+        ));
     }
 
     public function sharePreview(Activity $activity)
@@ -139,14 +178,14 @@ class ActivityController extends Controller
             'type' => ['required', 'in:evento_presencial,denuncia,tarefa_manual,convite'],
             'date_time' => ['required', 'date'],
             'location' => ['nullable', 'string', 'max:255'],
-            'points' => ['required', 'integer', 'min:1'],
+            'points' => ['required', 'integer', 'min:0'],
             'banner' => ['nullable', 'image', 'max:10240'],
         ], [
             'title.required' => 'O título é obrigatório.',
             'type.required' => 'Selecione o tipo da atividade.',
             'date_time.required' => 'A data/hora é obrigatória.',
             'points.required' => 'A pontuação é obrigatória.',
-            'points.min' => 'A pontuação deve ser pelo menos 1.',
+            'points.min' => 'A pontuação deve ser pelo menos 0.',
             'banner.max' => 'O banner deve ter no máximo 10MB.',
         ]);
 
@@ -254,4 +293,45 @@ class ActivityController extends Controller
             'already_participated'=> redirect()->route('activities.show', $activity)->with('error', 'Não é possível cancelar após registrar presença.'),
             'unauthorized'        => redirect()->route('activities.show', $activity)->with('error', 'Ação não permitida.'),
         };
-    }}
+    }
+
+    /**
+     * Delete a mission and all related data.
+     * Only accessible by administrador role (enforced by route middleware too).
+     */
+    public function destroy(Activity $activity)
+    {
+        if (!auth()->user()->isAdmin()) {
+            abort(403, 'Apenas administradores podem excluir missões.');
+        }
+
+        // Delete uploaded banner
+        if ($activity->banner) {
+            $relative = \Str::startsWith($activity->banner, 'public/')
+                ? substr($activity->banner, 7)
+                : $activity->banner;
+            $fullPath = public_path($relative);
+            if (file_exists($fullPath)) {
+                @unlink($fullPath);
+            }
+        }
+
+        // Delete all activity photos from storage (model observer handles files)
+        foreach ($activity->photos as $photo) {
+            $photo->delete();
+        }
+
+        // Detach pivot relationships
+        $activity->participants()->detach();
+
+        // Delete the activity (cascades submissions via DB if FK set, otherwise manual)
+        \App\Models\ActivitySubmission::where('activity_id', $activity->id)->delete();
+        \App\Models\ExpandedFormResponse::where('activity_id', $activity->id)->delete();
+
+        $title = $activity->title;
+        $activity->delete();
+
+        return redirect()->route('activities.index')->with('success', 'Missão "' . $title . '" excluída com sucesso.');
+    }
+}
+

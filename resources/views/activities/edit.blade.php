@@ -123,9 +123,9 @@
                 </div>
 
                 {{-- Pontuação --}}
-                <div class="mb-8">
+                <div class="mb-5">
                     <label for="points" class="block text-sm font-semibold text-brand-gray mb-2 uppercase tracking-wider">Pontuação</label>
-                    <input type="number" id="points" name="points" value="{{ old('points', $activity->points) }}" min="1" required
+                    <input type="number" id="points" name="points" value="{{ old('points', $activity->points) }}" min="0" required
                         class="block w-full px-4 py-3 bg-brand-dark-input border border-brand-dark-border rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-brand-yellow focus:border-brand-yellow transition @error('points') border-red-500 @enderror">
                     @error('points')
                         <p class="mt-1 text-sm text-red-400">{{ $message }}</p>

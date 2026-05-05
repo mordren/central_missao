@@ -18,16 +18,16 @@
                 <p class="text-xs text-brand-gray uppercase tracking-wider mt-1">Pontos</p>
             </div>
             <div class="bg-brand-dark-card border border-brand-dark-border rounded-xl p-4 text-center">
+                <p class="text-2xl font-extrabold text-white">#{{ $userRank }}º</p>
+                <p class="text-xs text-brand-gray uppercase tracking-wider mt-1">Ranking</p>
+            </div>
+            <div class="bg-brand-dark-card border border-brand-dark-border rounded-xl p-4 text-center">
                 <p class="text-2xl font-extrabold text-white">{{ $openActivities->count() }}</p>
                 <p class="text-xs text-brand-gray uppercase tracking-wider mt-1">Missões Abertas</p>
             </div>
             <div class="bg-brand-dark-card border border-brand-dark-border rounded-xl p-4 text-center">
                 <p class="text-2xl font-extrabold text-white">{{ $history->count() }}</p>
                 <p class="text-xs text-brand-gray uppercase tracking-wider mt-1">Concluídas</p>
-            </div>
-            <div class="bg-brand-dark-card border border-brand-dark-border rounded-xl p-4 text-center">
-                <p class="text-2xl font-extrabold text-white">{{ $monthActivities->count() }}</p>
-                <p class="text-xs text-brand-gray uppercase tracking-wider mt-1">Este Mês</p>
             </div>
         </div>
 
@@ -48,6 +48,95 @@
                 Completar cadastro
             </a>
             <div class="text-xs text-brand-gray mt-1">+15 pontos</div>
+        </div>
+        @endif
+
+        {{-- ===== PAINEL DE APROVAÇÕES (apenas coord/admin) ===== --}}
+        @if (auth()->user()->canManageActivities() && ($pendingSubmissions->count() > 0 || $pendingPhotos->count() > 0))
+            <div class="bg-brand-dark-card border border-orange-800/60 rounded-2xl p-4 sm:p-6">
+                <h2 class="text-sm font-bold text-orange-400 uppercase tracking-wider flex items-center gap-2 mb-4">
+                    <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>
+                    Aprovações Pendentes
+                    @php $total = $pendingSubmissions->count() + $pendingPhotos->count(); @endphp
+                    <span class="ml-1 bg-orange-500 text-white text-[10px] font-extrabold px-2 py-0.5 rounded-full">{{ $total }}</span>
+                </h2>
+
+                {{-- Tarefas manuais pendentes --}}
+                @if ($pendingSubmissions->count() > 0)
+                    <div class="mb-5">
+                        <p class="text-xs font-bold text-brand-gray uppercase tracking-widest mb-2 flex items-center gap-1.5">
+                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                            Tarefas Manuais ({{ $pendingSubmissions->count() }})
+                        </p>
+                        <div class="space-y-2">
+                            @foreach ($pendingSubmissions->take(5) as $sub)
+                                <div class="flex items-center justify-between gap-3 bg-brand-dark-input border border-brand-dark-border rounded-lg px-3 py-2.5">
+                                    <div class="min-w-0">
+                                        <p class="text-sm font-semibold text-white truncate">{{ $sub->user->displayName() }}</p>
+                                        <p class="text-xs text-brand-gray truncate">{{ $sub->activity->title }}</p>
+                                    </div>
+                                    <a href="{{ route('admin.activity_submissions.index') }}"
+                                       class="flex-shrink-0 text-xs font-bold text-brand-yellow hover:underline underline-offset-2">
+                                        Revisar →
+                                    </a>
+                                </div>
+                            @endforeach
+                            @if ($pendingSubmissions->count() > 5)
+                                <a href="{{ route('admin.activity_submissions.index') }}" class="block text-center text-xs text-brand-yellow hover:underline underline-offset-2 pt-1">
+                                    +{{ $pendingSubmissions->count() - 5 }} mais → Ver todas
+                                </a>
+                            @endif
+                        </div>
+                    </div>
+                @endif
+
+                {{-- Fotos pendentes --}}
+                @if ($pendingPhotos->count() > 0)
+                    <div>
+                        <p class="text-xs font-bold text-brand-gray uppercase tracking-widest mb-2 flex items-center gap-1.5">
+                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                            Fotos de Missões ({{ $pendingPhotos->count() }})
+                        </p>
+                        <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2 mb-2">
+                            @foreach ($pendingPhotos->take(8) as $photo)
+                                <div class="relative group rounded-lg overflow-hidden border border-brand-dark-border">
+                                    <img src="{{ $photo->url() }}"
+                                         alt="{{ e($photo->caption ?? 'Foto pendente') }}"
+                                         class="w-full h-20 object-cover opacity-70">
+                                    <div class="absolute inset-0 bg-black/40 flex flex-col justify-between p-1">
+                                        <p class="text-[10px] text-white font-semibold truncate leading-tight">{{ $photo->activity->title }}</p>
+                                        <div class="flex gap-1">
+                                            <form method="POST" action="{{ route('admin.photos.approve', $photo) }}" class="flex-1">
+                                                @csrf
+                                                <button type="submit" class="w-full bg-green-700 hover:bg-green-600 text-white text-[10px] font-bold py-1 rounded transition">✓</button>
+                                            </form>
+                                            <form method="POST" action="{{ route('admin.photos.reject', $photo) }}" class="flex-1">
+                                                @csrf
+                                                <button type="submit" class="w-full bg-red-800 hover:bg-red-700 text-white text-[10px] font-bold py-1 rounded transition">✗</button>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                            @endforeach
+                        </div>
+                        @if ($pendingPhotos->count() > 8)
+                            <p class="text-xs text-brand-gray text-center">+{{ $pendingPhotos->count() - 8 }} fotos em outras missões — aceda ao álbum de cada missão para aprovar.</p>
+                        @endif
+                    </div>
+                @endif
+            </div>
+        @endif
+        {{-- ===================================================== --}}
+
+        {{-- Código de indicação --}}
+        @if ($user->referral_code)
+        @php $dashInviteLink = 'https://grey-finch-461274.hostingersite.com/register?ref=' . $user->referral_code; @endphp
+        <div class="bg-brand-dark-card border border-brand-dark-border rounded-xl px-4 py-3">
+            <p class="text-xs font-bold text-brand-gray uppercase tracking-wider mb-1">Link de convite</p>
+            <div class="flex items-center gap-2">
+                <p class="flex-1 min-w-0 text-xs text-brand-gray font-mono truncate">{{ $dashInviteLink }}</p>
+                <button onclick="navigator.clipboard.writeText('{{ $dashInviteLink }}').then(function(){var b=document.getElementById('referral-copy-btn');b.textContent='Copiado!';setTimeout(function(){b.textContent='Copiar';},2000)})" id="referral-copy-btn" class="flex-shrink-0 bg-brand-yellow hover:bg-brand-yellow-hover text-brand-dark font-bold text-xs px-3 py-1.5 rounded-lg transition">Copiar</button>
+            </div>
         </div>
         @endif
 
@@ -116,7 +205,7 @@
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
                         </button>
                     </div>
-                    <div id="day-detail-list" class="space-y-2"></div>
+                    <div id="day-detail-list" class="space-y-2 overflow-y-auto max-h-64"></div>
                 </div>
 
                 <script>
@@ -139,7 +228,7 @@
                             link.className = 'flex items-center justify-between p-3 bg-brand-dark rounded-lg border border-brand-dark-border hover:border-brand-yellow/50 transition';
                             const bannerHtml = a.banner ? '<div class="w-12 h-10 rounded-lg overflow-hidden flex-shrink-0 border border-brand-dark-border mr-3"><img src="' + a.banner + '" class="w-full h-full object-cover">' + '</div>' : '';
                             link.innerHTML = '<div class="flex items-start justify-between gap-3"><div class="flex items-center gap-2 flex-shrink-0">' + bannerHtml + '</div><div class="flex-1 min-w-0">' +
-                                '<p class="text-sm font-semibold text-white truncate">' + a.title + '</p>' +
+                                '<p class="text-sm font-semibold text-white break-words">' + a.title + '</p>' +
                                 '<p class="text-xs text-brand-gray mt-0.5">' + a.time + ' • ' + a.type + '</p>' +
                                 '</div></div>' +
                                 '<span class="text-xs font-bold text-brand-yellow bg-brand-yellow/10 px-2 py-1 rounded ml-2">+' + a.points + 'pts</span>';

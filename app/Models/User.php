@@ -44,7 +44,7 @@ class User extends Authenticatable
     public function avatarSrc(): ?string
     {
         if ($this->avatar_path) {
-            return asset('storage/' . $this->avatar_path);
+            return url($this->avatar_path);
         }
         if ($this->avatar_url) {
             return $this->avatar_url;

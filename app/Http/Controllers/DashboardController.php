@@ -3,6 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Models\Activity;
+use App\Models\ActivityPhoto;
+use App\Models\ActivitySubmission;
+use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 
@@ -55,6 +58,23 @@ class DashboardController extends Controller
             ])->values()->all();
         }
 
+        // Pending items for coord/admin
+        $pendingSubmissions = collect();
+        $pendingPhotos = collect();
+        if ($user->canManageActivities()) {
+            $pendingSubmissions = ActivitySubmission::where('status', 'pending')
+                ->with(['user', 'activity'])
+                ->orderByDesc('submitted_at')
+                ->get();
+            $pendingPhotos = ActivityPhoto::where('status', 'pending')
+                ->with(['uploader', 'activity'])
+                ->orderByDesc('created_at')
+                ->get();
+        }
+
+        // Ranking position
+        $userRank = User::where('points', '>', $user->points)->count() + 1;
+
         return view('dashboard', compact(
             'user',
             'openActivities',
@@ -64,7 +84,10 @@ class DashboardController extends Controller
             'activitiesByDayJs',
             'currentDate',
             'month',
-            'year'
+            'year',
+            'pendingSubmissions',
+            'pendingPhotos',
+            'userRank'
         ));
     }
 }

@@ -4,8 +4,10 @@ use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\Auth\ChangePasswordController;
 use App\Http\Controllers\ActivityController;
+use App\Http\Controllers\ActivityPhotoController;
 use App\Http\Controllers\ActivitySubmissionController;
 use App\Http\Controllers\AdminController;
+use App\Http\Controllers\AlbumController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\LeadImportController;
 use App\Http\Controllers\ProfileController;
@@ -59,6 +61,14 @@ Route::middleware('auth')->group(function () {
     Route::get('/activities', [ActivityController::class, 'index'])->name('activities.index');
     Route::get('/activities/{activity}', [ActivityController::class, 'show'])->name('activities.show');
 
+    // Álbum de fotos de missões concluídas
+    Route::get('/albums', [AlbumController::class, 'index'])->name('albums.index');
+    Route::get('/activities/{activity}/album', [AlbumController::class, 'show'])->name('activities.album');
+
+    // Upload de fotos (qualquer autenticado)
+    Route::post('/activities/{activity}/photos/upload', [ActivityPhotoController::class, 'store'])->name('activities.photos.store');
+    Route::delete('/activities/{activity}/photos/{photo}', [ActivityPhotoController::class, 'destroy'])->name('activities.photos.destroy');
+
     // Confirmar inscrição / RSVP (apenas role standard)
     Route::post('/activities/{activity}/rsvp', [ActivityController::class, 'confirmRsvp'])->name('activities.rsvp');
     Route::delete('/activities/{activity}/rsvp', [ActivityController::class, 'cancelRsvp'])->name('activities.rsvp.cancel');
@@ -80,6 +90,10 @@ Route::middleware('auth')->group(function () {
         Route::put('/activities/{activity}', [ActivityController::class, 'update'])->name('activities.update');
         Route::get('/activities/{activity}/qrcode', [ActivityController::class, 'qrcode'])->name('activities.qrcode');
 
+        // Moderação de fotos
+        Route::post('/admin/activity-photos/{photo}/approve', [ActivityPhotoController::class, 'approve'])->name('admin.photos.approve');
+        Route::post('/admin/activity-photos/{photo}/reject', [ActivityPhotoController::class, 'reject'])->name('admin.photos.reject');
+
         // Review activity submissions (coordinator + admin)
         Route::get('/admin/activity-submissions', [\App\Http\Controllers\ActivitySubmissionController::class, 'index'])->name('admin.activity_submissions.index');
         Route::get('/admin/activity-submissions/{submission}', [\App\Http\Controllers\ActivitySubmissionController::class, 'show'])->name('admin.activity_submissions.show');
@@ -89,6 +103,7 @@ Route::middleware('auth')->group(function () {
 
     // Admin (só administrador)
     Route::middleware('role:administrador')->group(function () {
+        Route::delete('/activities/{activity}', [ActivityController::class, 'destroy'])->name('activities.destroy');
         Route::get('/admin/users', [AdminController::class, 'users'])->name('admin.users');
         Route::patch('/admin/users/{user}/role', [AdminController::class, 'updateRole'])->name('admin.users.updateRole');
         Route::post('/ranking/reset', [RankingController::class, 'reset'])->name('ranking.reset');
@@ -111,5 +126,6 @@ Route::middleware('auth')->group(function () {
 
     // Perfil do usuário
     Route::get('/profile', [ProfileController::class, 'show'])->name('profile.show');
+    Route::get('/profile/edit', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
 });

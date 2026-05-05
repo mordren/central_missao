@@ -20,12 +20,17 @@ class Activity extends Model
         'banner',
         'qr_code',
         'created_by',
+        'status',
+        'completed_at',
+        'skip_points',
     ];
 
     protected $casts = [
         'date_time' => 'datetime',
         'deadline' => 'datetime',
+        'completed_at' => 'datetime',
         'points' => 'integer',
+        'skip_points' => 'boolean',
     ];
 
     public function creator()
@@ -52,7 +57,30 @@ class Activity extends Model
 
     public function isExpired(): bool
     {
-        return $this->deadline?->isPast() ?? false;
+        if ($this->deadline) {
+            return $this->deadline->isPast();
+        }
+        return $this->date_time?->isPast() ?? false;
+    }
+
+    public function isCompleted(): bool
+    {
+        return $this->status === 'completed';
+    }
+
+    public function isActive(): bool
+    {
+        return $this->status === 'active';
+    }
+
+    public function photos()
+    {
+        return $this->hasMany(\App\Models\ActivityPhoto::class);
+    }
+
+    public function approvedPhotos()
+    {
+        return $this->photos()->where('status', 'approved')->orderBy('approved_at');
     }
 
     public function typeLabel(): string
