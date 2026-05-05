@@ -21,12 +21,15 @@ class RegisterController extends Controller
             'name' => ['required', 'string', 'max:255', 'regex:/^[^\d]+$/u'],
             // Require DDD (2 digits) + 9-digit mobile (starts with 9)
                 'phone' => ['required', 'string', 'regex:/^\(?([1-9][0-9])\)?\s?9\d{4}-?\d{4}$/'],
-            'email' => ['nullable', 'email', 'max:255'],
+            'email' => ['required', 'email', 'max:255', 'unique:users,email'],
             'city' => ['required', 'string', 'max:255'],
             'neighborhood' => ['required', 'string', 'max:255'],
             'referral_code_input' => ['nullable', 'string', 'max:50'],
             'password' => ['required', 'string', 'min:8', 'confirmed'],
         ], [
+            'email.required' => 'O e-mail é obrigatório.',
+            'email.email' => 'Informe um e-mail válido.',
+            'email.unique' => 'Este e-mail já está cadastrado.',
             'name.required' => 'O nome é obrigatório.',
             'name.regex' => 'O nome não pode conter números.',
             'phone.required' => 'O telefone é obrigatório.',
@@ -54,7 +57,7 @@ class RegisterController extends Controller
         $user = User::create([
             'name' => $validated['name'],
                 'phone' => $normalizedPhone,
-            'email' => $validated['email'] ?? null,
+            'email' => $validated['email'],
             'city' => $validated['city'],
             'neighborhood' => $validated['neighborhood'],
             'referred_by' => $validated['referral_code_input'] ?? null,

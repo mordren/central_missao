@@ -53,25 +53,25 @@
 
                 {{-- Campo Telefone --}}
                 <div class="mb-5">
-                    <label for="phone" class="block text-sm font-semibold text-brand-gray mb-2 uppercase tracking-wider">Telefone</label>
+                    <label for="phone_display" class="block text-sm font-semibold text-brand-gray mb-2 uppercase tracking-wider">Telefone <span class="text-red-400">*</span></label>
                     <div class="relative">
                         <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                             <svg class="w-5 h-5 text-brand-gray" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/>
                             </svg>
                         </div>
+                        {{-- Display field with mask (not submitted) --}}
                         <input
                             type="tel"
-                            id="phone"
-                            name="phone"
-                            value="{{ old('phone') }}"
-                            placeholder="(11) 99999-9999"
-                            required
-                            pattern="^\(?([1-9][0-9])\)?\s?9[0-9]{4}-?[0-9]{4}$"
-                            title="Use DDD + 9 dígitos. Ex: (11) 99999-9999"
+                            id="phone_display"
+                            placeholder="(45) 99999-9999"
+                            maxlength="15"
                             inputmode="tel"
+                            autocomplete="tel"
                             class="block w-full pl-10 pr-4 py-3 bg-brand-dark-input border border-brand-dark-border rounded-lg text-white placeholder-brand-gray/60 focus:outline-none focus:ring-2 focus:ring-brand-yellow focus:border-brand-yellow transition @error('phone') border-red-500 @enderror"
                         >
+                        {{-- Hidden real field with digits only --}}
+                        <input type="hidden" id="phone" name="phone" value="{{ old('phone') }}">
                     </div>
                     @error('phone')
                         <p class="mt-1 text-sm text-red-400">{{ $message }}</p>
@@ -80,7 +80,7 @@
 
                 {{-- Campo E-mail --}}
                 <div class="mb-5">
-                    <label for="email" class="block text-sm font-semibold text-brand-gray mb-2 uppercase tracking-wider">E-mail <span class="text-brand-gray/50 normal-case">(opcional)</span></label>
+                    <label for="email" class="block text-sm font-semibold text-brand-gray mb-2 uppercase tracking-wider">E-mail <span class="text-red-400">*</span></label>
                     <div class="relative">
                         <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                             <svg class="w-5 h-5 text-brand-gray" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -93,6 +93,7 @@
                             name="email"
                             value="{{ old('email') }}"
                             placeholder="seu@email.com"
+                            required
                             class="block w-full pl-10 pr-4 py-3 bg-brand-dark-input border border-brand-dark-border rounded-lg text-white placeholder-brand-gray/60 focus:outline-none focus:ring-2 focus:ring-brand-yellow focus:border-brand-yellow transition @error('email') border-red-500 @enderror"
                         >
                     </div>
@@ -230,70 +231,79 @@
     </div>
 </div>
         <script>
-            // Prevent typing numbers into the Name field and letters into the Phone field; sanitize pasted content
-            document.addEventListener('DOMContentLoaded', function() {
+            document.addEventListener('DOMContentLoaded', function () {
+                // ── Name: no digits ──────────────────────────────────────
                 const nameInput = document.getElementById('name');
-                const phoneInput = document.getElementById('phone');
-
                 if (nameInput) {
-                    nameInput.addEventListener('keydown', function(e) {
+                    nameInput.addEventListener('keydown', function (e) {
                         if (e.ctrlKey || e.metaKey || e.altKey) return;
-                        const key = e.key;
-                        if (key && key.length === 1 && /[0-9]/.test(key)) {
-                            e.preventDefault();
-                        }
+                        if (e.key && e.key.length === 1 && /[0-9]/.test(e.key)) e.preventDefault();
                     });
-
-                    nameInput.addEventListener('input', function() {
+                    nameInput.addEventListener('input', function () {
                         const pos = this.selectionStart;
                         const cleaned = this.value.replace(/[0-9]/g, '');
                         if (cleaned !== this.value) {
                             this.value = cleaned;
-                            try { this.setSelectionRange(Math.max(pos-1,0), Math.max(pos-1,0)); } catch(e) {}
+                            try { this.setSelectionRange(Math.max(pos - 1, 0), Math.max(pos - 1, 0)); } catch (e) {}
                         }
                     });
-
-                    nameInput.addEventListener('paste', function(e) {
+                    nameInput.addEventListener('paste', function (e) {
                         e.preventDefault();
                         const paste = (e.clipboardData || window.clipboardData).getData('text');
                         const sanitized = paste.replace(/[0-9]/g, '');
-                        const start = this.selectionStart;
-                        const end = this.selectionEnd;
-                        this.value = this.value.slice(0, start) + sanitized + this.value.slice(end);
-                        const newPos = start + sanitized.length;
-                        try { this.setSelectionRange(newPos, newPos); } catch(e) {}
+                        const s = this.selectionStart, end = this.selectionEnd;
+                        this.value = this.value.slice(0, s) + sanitized + this.value.slice(end);
+                        try { this.setSelectionRange(s + sanitized.length, s + sanitized.length); } catch (e) {}
                     });
                 }
 
-                if (phoneInput) {
-                    phoneInput.addEventListener('keydown', function(e) {
+                // ── Phone mask: (DD) 9XXXX-XXXX ─────────────────────────
+                const phoneDisplay = document.getElementById('phone_display');
+                const phoneHidden  = document.getElementById('phone');
+
+                function applyPhoneMask(raw) {
+                    // keep digits only, cap at 11
+                    const d = raw.replace(/\D/g, '').slice(0, 11);
+                    if (d.length === 0) return '';
+                    if (d.length <= 2)  return '(' + d;
+                    if (d.length <= 7)  return '(' + d.slice(0, 2) + ') ' + d.slice(2);
+                    if (d.length <= 10) return '(' + d.slice(0, 2) + ') ' + d.slice(2, 6) + '-' + d.slice(6);
+                    return '(' + d.slice(0, 2) + ') ' + d.slice(2, 7) + '-' + d.slice(7);
+                }
+
+                // Pre-fill display from hidden (old value on validation error)
+                if (phoneHidden && phoneHidden.value) {
+                    phoneDisplay.value = applyPhoneMask(phoneHidden.value);
+                }
+
+                if (phoneDisplay) {
+                    phoneDisplay.addEventListener('input', function () {
+                        const caret = this.selectionStart;
+                        const digsBefore = this.value.slice(0, caret).replace(/\D/g, '').length;
+                        const masked = applyPhoneMask(this.value);
+                        this.value = masked;
+                        // restore caret approximately
+                        let newCaret = 0, dCount = 0;
+                        for (let i = 0; i < masked.length; i++) {
+                            if (/\d/.test(masked[i])) dCount++;
+                            if (dCount >= digsBefore) { newCaret = i + 1; break; }
+                        }
+                        try { this.setSelectionRange(newCaret, newCaret); } catch (e) {}
+                        phoneHidden.value = masked.replace(/\D/g, '');
+                    });
+
+                    phoneDisplay.addEventListener('keydown', function (e) {
+                        // allow only digits, navigation and control keys
                         if (e.ctrlKey || e.metaKey || e.altKey) return;
-                        const key = e.key;
-                        // Allow control keys, digits and some formatting characters; block letters
-                        if (key && key.length === 1 && /[A-Za-zÀ-ÿ]/.test(key)) {
-                            e.preventDefault();
-                        }
+                        if (e.key && e.key.length === 1 && /[^0-9]/.test(e.key)) e.preventDefault();
                     });
+                }
 
-                    phoneInput.addEventListener('input', function() {
-                        const pos = this.selectionStart;
-                        // keep digits, parentheses, plus, hyphen and spaces only
-                        const cleaned = this.value.replace(/[^0-9()\-+\s]/g, '');
-                        if (cleaned !== this.value) {
-                            this.value = cleaned;
-                            try { this.setSelectionRange(Math.max(pos-1,0), Math.max(pos-1,0)); } catch(e) {}
-                        }
-                    });
-
-                    phoneInput.addEventListener('paste', function(e) {
-                        e.preventDefault();
-                        const paste = (e.clipboardData || window.clipboardData).getData('text');
-                        const sanitized = paste.replace(/[^0-9()\-+\s]/g, '');
-                        const start = this.selectionStart;
-                        const end = this.selectionEnd;
-                        this.value = this.value.slice(0, start) + sanitized + this.value.slice(end);
-                        const newPos = start + sanitized.length;
-                        try { this.setSelectionRange(newPos, newPos); } catch(e) {}
+                // ── On submit: validate phone has 11 digits ──────────────
+                const form = phoneDisplay && phoneDisplay.closest('form');
+                if (form) {
+                    form.addEventListener('submit', function () {
+                        if (phoneHidden) phoneHidden.value = phoneHidden.value.replace(/\D/g, '');
                     });
                 }
             });

@@ -31,24 +31,24 @@
         <div class="space-y-3">
             @forelse ($activities as $activity)
                 <a href="{{ route('activities.show', $activity) }}" class="block bg-brand-dark-card border border-brand-dark-border rounded-xl p-4 sm:p-5 hover:border-brand-yellow/50 transition">
-                    <div class="flex flex-col sm:flex-row items-start justify-between gap-4">
+                    <div class="flex items-start justify-between gap-3">
                         <div class="flex-1 min-w-0">
-                            <div class="flex items-center gap-2 mb-1">
+                            <div class="flex items-center gap-2 mb-1 flex-wrap">
                                 <span class="text-xs font-bold text-brand-yellow bg-brand-yellow/10 px-2 py-0.5 rounded uppercase tracking-wider">{{ $activity->typeLabel() }}</span>
                                 @if ($activity->isExpired())
                                     <span class="text-xs font-bold text-red-400 bg-red-900/30 px-2 py-0.5 rounded">Encerrada</span>
                                 @endif
                             </div>
-                            <h3 class="text-white font-semibold truncate">{{ $activity->title }}</h3>
-                            <div class="flex flex-wrap items-center gap-2 sm:gap-3 mt-2 text-xs text-brand-gray">
-                                <span>{{ $activity->date_time->format('d/m/Y \à\s H\hi') }}</span>
+                            <h3 class="text-white font-semibold break-words leading-snug">{{ $activity->title }}</h3>
+                            <div class="flex flex-wrap items-center gap-x-2 gap-y-1 mt-2 text-xs text-brand-gray">
+                                <span class="whitespace-nowrap">{{ $activity->date_time->format('d/m/Y \à\s H\hi') }}</span>
                                 @if ($activity->location)
                                     <span class="break-words">• {{ $activity->location }}</span>
                                 @endif
-                                <span>• {{ $activity->rsvp_participants_count }} inscrito{{ $activity->rsvp_participants_count === 1 ? '' : 's' }}</span>
+                                <span class="whitespace-nowrap">• {{ $activity->rsvp_participants_count }} inscrito{{ $activity->rsvp_participants_count === 1 ? '' : 's' }}</span>
                             </div>
                         </div>
-                        <span class="text-sm font-bold text-brand-yellow bg-brand-yellow/10 px-3 py-1.5 rounded-lg flex-shrink-0">+{{ $activity->points }}pts</span>
+                        <span class="text-sm font-bold text-brand-yellow bg-brand-yellow/10 px-3 py-1.5 rounded-lg flex-shrink-0 whitespace-nowrap">+{{ $activity->points }}pts</span>
                     </div>
                 </a>
             @empty

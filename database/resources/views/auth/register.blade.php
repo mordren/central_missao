@@ -77,7 +77,7 @@
 
                 {{-- Campo E-mail --}}
                 <div class="mb-5">
-                    <label for="email" class="block text-sm font-semibold text-brand-gray mb-2 uppercase tracking-wider">E-mail <span class="text-brand-gray/50 normal-case">(opcional)</span></label>
+                    <label for="email" class="block text-sm font-semibold text-brand-gray mb-2 uppercase tracking-wider">E-mail</label>
                     <div class="relative">
                         <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                             <svg class="w-5 h-5 text-brand-gray" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -89,6 +89,7 @@
                             id="email"
                             name="email"
                             value="{{ old('email') }}"
+                            required
                             placeholder="seu@email.com"
                             class="block w-full pl-10 pr-4 py-3 bg-brand-dark-input border border-brand-dark-border rounded-lg text-white placeholder-brand-gray/60 focus:outline-none focus:ring-2 focus:ring-brand-yellow focus:border-brand-yellow transition @error('email') border-red-500 @enderror"
                         >
