@@ -5,8 +5,14 @@
 @section('head')
     <meta property="og:title" content="{{ $activity->title }} - ONÇAS DO OESTE">
     <meta property="og:description" content="{{ \Illuminate\Support\Str::limit($activity->description ?? '', 200) }}">
+    <meta property="og:url" content="{{ route('activities.show', $activity) }}">
+    <meta property="og:type" content="website">
     @if ($activity->banner)
-        <meta property="og:image" content="{{ asset($activity->banner) }}">
+        @php
+            $bannerUrl = asset(ltrim(str_replace('public/', '', $activity->banner), '/'));
+        @endphp
+        <meta property="og:image" content="{{ $bannerUrl }}">
+        <meta property="og:image:secure_url" content="{{ $bannerUrl }}">
         <meta name="twitter:card" content="summary_large_image">
     @else
         <meta name="twitter:card" content="summary">

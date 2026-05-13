@@ -14,8 +14,50 @@
             children: 'a.pswp-item',
             pswpModule: PhotoSwipe,
             showHideAnimationType: 'fade',
-            bgOpacity: 0.95,
+            bgOpacity: 0.97,
+            // Desktop: tamanho natural (100%) se couber, senão ajusta; Mobile: ajusta à tela
+            initialZoomLevel: (zoomLevelObject) => {
+                if (window.innerWidth >= 768) {
+                    return Math.min(1, zoomLevelObject.fit);
+                }
+                return zoomLevelObject.fit;
+            },
+            maxZoomLevel: 4,
+            secondaryZoomLevel: 2,
         });
+
+        // Lê as dimensões reais da miniatura já carregada
+        lightbox.on('itemData', (e) => {
+            const el = e.itemData.element;
+            if (el) {
+                const img = el.querySelector('img');
+                if (img && img.naturalWidth) {
+                    e.itemData.w = img.naturalWidth;
+                    e.itemData.h = img.naturalHeight;
+                }
+            }
+        });
+
+        // Fallback: carrega a imagem completa para obter dimensões reais
+        lightbox.on('contentLoad', (e) => {
+            const { content } = e;
+            if (!content.data.w || !content.data.h || content.data.w < 2) {
+                e.preventDefault();
+                const img = new Image();
+                img.onload = () => {
+                    content.data.w = img.naturalWidth;
+                    content.data.h = img.naturalHeight;
+                    content.instance.refreshSlideContent(content.index);
+                };
+                img.onerror = () => {
+                    content.data.w = 800;
+                    content.data.h = 600;
+                    content.instance.refreshSlideContent(content.index);
+                };
+                img.src = content.data.src;
+            }
+        });
+
         lightbox.init();
     </script>
     {{-- FilePond --}}
@@ -29,8 +71,26 @@
         .filepond--panel-root { background: #1A1A1A; border: 1px solid #2A2A2A; border-radius: 0.75rem; }
         .filepond--drop-label { color: #888; }
         .filepond--label-action { color: #FFD600; text-decoration: underline; }
-        /* PhotoSwipe caption */
+        /* PhotoSwipe — qualidade e exibição da foto */
         .pswp__caption__center { text-align: center; font-size: 0.85rem; color: #ccc; padding: 0 1rem; }
+        .pswp__img {
+            will-change: transform;
+            image-rendering: high-quality;
+        }
+        /* Mobile: contém sem esticar */
+        @media (max-width: 767px) {
+            .pswp__img {
+                object-fit: contain !important;
+                max-width: 100vw !important;
+                max-height: 100dvh !important;
+            }
+        }
+        /* Desktop: tamanho natural, sem forçar esticamento */
+        @media (min-width: 768px) {
+            .pswp__img {
+                object-fit: contain !important;
+            }
+        }
     </style>
     <script>
         document.addEventListener('DOMContentLoaded', function () {
@@ -173,8 +233,6 @@
                         <div class="group relative">
                             <a class="pswp-item block"
                                href="{{ $photo->url() }}"
-                               data-pswp-width="1200"
-                               data-pswp-height="900"
                                data-caption="{{ e($photo->caption ?? '') }}"
                                target="_blank">
                                 <div class="aspect-square overflow-hidden rounded-xl border border-brand-dark-border bg-brand-dark-input">
